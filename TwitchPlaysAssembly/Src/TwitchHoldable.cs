@@ -29,7 +29,7 @@ public class TwitchHoldable
 					continue;
 
 				var type = component.GetType();
-				var candidateMethod = type.GetMethod("ProcessTwitchCommand", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+				var candidateMethod = type.GetDeepMember<MethodInfo>("ProcessTwitchCommand", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
 				if (candidateMethod == null)
 					continue;
 				if (ValidateMethodCommandMethod(type, candidateMethod))

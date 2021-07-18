@@ -33,29 +33,29 @@ public static class ReflectionHelper
 #pragma warning restore CA1031
 	}
 
-	public static IEnumerable<FieldInfo> GetAllFields(this Type t, BindingFlags bindingFlags)
+	public static IEnumerable<T> GetAllMembers<T>(this Type t, BindingFlags bindingFlags) where T : MemberInfo
 	{
 		if (t == null)
-			return Enumerable.Empty<FieldInfo>();
+			return Enumerable.Empty<T>();
 
 		BindingFlags flags = bindingFlags |
 							 BindingFlags.DeclaredOnly;
-		return t.GetFields(flags).Concat(GetAllFields(t.BaseType, bindingFlags));
+		return t.GetMembers(flags).OfType<T>().Concat(GetAllMembers<T>(t.BaseType, bindingFlags));
 	}
 
-	public static IEnumerable<FieldInfo> GetAllFields(this object obj, BindingFlags bindingFlags)
+	public static IEnumerable<T> GetAllMembers<T>(this object obj, BindingFlags bindingFlags) where T : MemberInfo
 	{
-		return GetAllFields(obj.GetType(), bindingFlags);
+		return GetAllMembers<T>(obj.GetType(), bindingFlags);
 	}
 
-	public static FieldInfo GetDeepField(this Type t, string fieldName, BindingFlags bindingFlags)
+	public static T GetDeepMember<T>(this Type t, string memberName, BindingFlags bindingFlags) where T : MemberInfo
 	{
-		return GetAllFields(t, bindingFlags).FirstOrDefault(field => field.Name == fieldName);
+		return GetAllMembers<T>(t, bindingFlags).FirstOrDefault(member => member.Name == memberName || member.Name == $"<{memberName}>k__BackingField");
 	}
 
-	public static FieldInfo GetDeepField(this object obj, string fieldName, BindingFlags bindingFlags)
+	public static T GetDeepMember<T>(this object obj, string memberName, BindingFlags bindingFlags) where T : MemberInfo
 	{
-		return GetDeepField(obj.GetType(), fieldName, bindingFlags);
+		return GetDeepMember<T>(obj.GetType(), memberName, bindingFlags);
 	}
 
 	static readonly Dictionary<string, MemberInfo> MemberCache = new Dictionary<string, MemberInfo>();

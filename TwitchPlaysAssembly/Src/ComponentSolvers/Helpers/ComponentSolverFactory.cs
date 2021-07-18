@@ -1442,7 +1442,7 @@ public static class ComponentSolverFactory
 
 	private static bool FindRegexList(Component bombComponent, Type commandComponentType, out string[] validCommands)
 	{
-		FieldInfo candidateString = commandComponentType?.GetDeepField("TwitchValidCommands", fieldFlags);
+		FieldInfo candidateString = commandComponentType?.GetDeepMember<FieldInfo>("TwitchValidCommands", fieldFlags);
 		if (candidateString == null)
 		{
 			validCommands = null;
@@ -1476,7 +1476,7 @@ public static class ComponentSolverFactory
 
 	private static bool FindModuleScore(Component bombComponent, Type commandComponentType, out int moduleScore)
 	{
-		FieldInfo candidateInt = commandComponentType?.GetDeepField("TwitchModuleScore", fieldFlags);
+		FieldInfo candidateInt = commandComponentType?.GetDeepMember<FieldInfo>("TwitchModuleScore", fieldFlags);
 		if (candidateInt == null)
 		{
 			moduleScore = 5;
@@ -1493,7 +1493,7 @@ public static class ComponentSolverFactory
 
 	private static bool FindStrikePenalty(Component bombComponent, Type commandComponentType, out int strikePenalty)
 	{
-		FieldInfo candidateInt = commandComponentType?.GetDeepField("TwitchStrikePenalty", fieldFlags);
+		FieldInfo candidateInt = commandComponentType?.GetDeepMember<FieldInfo>("TwitchStrikePenalty", fieldFlags);
 		if (candidateInt == null)
 		{
 			strikePenalty = -6;
@@ -1527,45 +1527,45 @@ public static class ComponentSolverFactory
 
 	private static FieldInfo FindHelpMessage(Type commandComponentType)
 	{
-		FieldInfo cancelField = commandComponentType?.GetDeepField("TwitchHelpMessage", fieldFlags);
+		FieldInfo cancelField = commandComponentType?.GetDeepMember<FieldInfo>("TwitchHelpMessage", fieldFlags);
 		return cancelField?.FieldType == typeof(string) ? cancelField : null;
 	}
 
 	private static FieldInfo FindManualCode(Type commandComponentType)
 	{
-		FieldInfo cancelField = commandComponentType?.GetDeepField("TwitchManualCode", fieldFlags);
+		FieldInfo cancelField = commandComponentType?.GetDeepMember<FieldInfo>("TwitchManualCode", fieldFlags);
 		return cancelField?.FieldType == typeof(string) ? cancelField : null;
 	}
 
 	private static FieldInfo FindCancelBool(Type commandComponentType)
 	{
-		FieldInfo cancelField = commandComponentType?.GetDeepField("TwitchShouldCancelCommand", fieldFlags);
+		FieldInfo cancelField = commandComponentType?.GetDeepMember<FieldInfo>("TwitchShouldCancelCommand", fieldFlags);
 		return cancelField?.FieldType == typeof(bool) ? cancelField : null;
 	}
 
 	private static FieldInfo FindZenModeBool(Type commandComponentType)
 	{
-		FieldInfo zenField = commandComponentType?.GetDeepField("TwitchZenMode", fieldFlags) ??
-							commandComponentType?.GetDeepField("ZenModeActive", fieldFlags);
+		FieldInfo zenField = commandComponentType?.GetDeepMember<FieldInfo>("TwitchZenMode", fieldFlags) ??
+							commandComponentType?.GetDeepMember<FieldInfo>("ZenModeActive", fieldFlags);
 		return zenField?.FieldType == typeof(bool) ? zenField : null;
 	}
 
 	private static FieldInfo FindTimeModeBool(Type commandComponentType)
 	{
-		FieldInfo timeField = commandComponentType?.GetDeepField("TwitchTimeMode", fieldFlags) ??
-							commandComponentType?.GetDeepField("TimeModeActive", fieldFlags);
+		FieldInfo timeField = commandComponentType?.GetDeepMember<FieldInfo>("TwitchTimeMode", fieldFlags) ??
+							commandComponentType?.GetDeepMember<FieldInfo>("TimeModeActive", fieldFlags);
 		return timeField?.FieldType == typeof(bool) ? timeField : null;
 	}
 
 	private static FieldInfo FindTwitchPlaysBool(Type commandComponentType)
 	{
-		FieldInfo twitchPlaysActiveField = commandComponentType?.GetDeepField("TwitchPlaysActive", fieldFlags);
+		FieldInfo twitchPlaysActiveField = commandComponentType?.GetDeepMember<FieldInfo>("TwitchPlaysActive", fieldFlags);
 		return twitchPlaysActiveField?.FieldType == typeof(bool) ? twitchPlaysActiveField : null;
 	}
 
 	private static FieldInfo FindTwitchPlaysSkipTimeBool(Type commandComponentType)
 	{
-		FieldInfo twitchPlaysActiveField = commandComponentType?.GetDeepField("TwitchPlaysSkipTimeAllowed", fieldFlags);
+		FieldInfo twitchPlaysActiveField = commandComponentType?.GetDeepMember<FieldInfo>("TwitchPlaysSkipTimeAllowed", fieldFlags);
 		return twitchPlaysActiveField?.FieldType == typeof(bool) ? twitchPlaysActiveField : null;
 	}
 
@@ -1595,7 +1595,7 @@ public static class ComponentSolverFactory
 
 	private static FieldInfo FindAbandonModuleList(Type commandComponentType)
 	{
-		FieldInfo cancelField = commandComponentType?.GetDeepField("TwitchAbandonModule", fieldFlags);
+		FieldInfo cancelField = commandComponentType?.GetDeepMember<FieldInfo>("TwitchAbandonModule", fieldFlags);
 		return cancelField?.FieldType == typeof(List<KMBombModule>) ? cancelField : null;
 	}
 
@@ -1608,7 +1608,7 @@ public static class ComponentSolverFactory
 				continue;
 
 			Type type = component.GetType();
-			MethodInfo candidateMethod = type.GetMethod("ProcessTwitchCommand", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+			MethodInfo candidateMethod = type.GetDeepMember<MethodInfo>("ProcessTwitchCommand", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
 			if (candidateMethod == null)
 			{
 				continue;
