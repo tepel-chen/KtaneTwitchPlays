@@ -179,7 +179,7 @@ public abstract class ComponentSolver
 
 					Leaderboard.Instance.AddScore(_currentUserNickName, -penalty);
 					IRCConnection.SendMessageFormat(TwitchPlaySettings.data.UnsubmittableAnswerPenalty,
-						_currentUserNickName, Code, ModInfo.moduleDisplayName, penalty, penalty > 1 ? "s" : "");
+						_currentUserNickName, Code, ModInfo.moduleTranslatedName ?? ModInfo.moduleDisplayName, penalty, penalty > 1 ? "s" : "");
 				}
 				else if (currentString.Equals("parseerror", StringComparison.InvariantCultureIgnoreCase))
 				{
@@ -411,13 +411,13 @@ public abstract class ComponentSolver
 						switch (currentStrings.Length)
 						{
 							case 2:
-								Module.Bomb.CauseExplosionByModuleCommand(currentStrings[1], ModInfo.moduleDisplayName);
+								Module.Bomb.CauseExplosionByModuleCommand(currentStrings[1], ModInfo.moduleTranslatedName ?? ModInfo.moduleDisplayName);
 								break;
 							case 3:
 								Module.Bomb.CauseExplosionByModuleCommand(currentStrings[1], currentStrings[2]);
 								break;
 							default:
-								Module.Bomb.CauseExplosionByModuleCommand(string.Empty, ModInfo.moduleDisplayName);
+								Module.Bomb.CauseExplosionByModuleCommand(string.Empty, ModInfo.moduleTranslatedName ?? ModInfo.moduleDisplayName);
 								break;
 						}
 						break;
@@ -593,7 +593,7 @@ public abstract class ComponentSolver
 
 		if (!string.IsNullOrEmpty(chatMessage)) SendToTwitchChat($"sendtochat {chatMessage}", userNickName);
 		AwardStrikes(userNickName, Module.Bomb.StrikeLimit - Module.Bomb.StrikeCount);
-		Module.Bomb.CauseExplosionByModuleCommand(string.Empty, ModInfo.moduleDisplayName);
+		Module.Bomb.CauseExplosionByModuleCommand(string.Empty, ModInfo.moduleTranslatedName ?? ModInfo.moduleDisplayName);
 	}
 
 	protected IEnumerator ChainCommand(string command)
@@ -976,7 +976,7 @@ public abstract class ComponentSolver
 			TwitchPlaySettings.AddRewardBonus(componentValue);
 		else
 		{
-			string headerText = UnsupportedModule ? ModInfo.moduleDisplayName : Module.BombComponent.GetModuleDisplayName();
+			string headerText = UnsupportedModule ? ModInfo.moduleTranslatedName ?? ModInfo.moduleDisplayName : Module.BombComponent.GetModuleDisplayName();
 			CalculateVSHP(userNickName, componentValue, out OtherModes.Team? teamDamaged, out int HPDamage);
 			if (OtherModes.VSModeOn)
 			{
@@ -1028,7 +1028,7 @@ public abstract class ComponentSolver
 	private void AwardStrikes(string userNickName, int strikeCount)
 	{
 		List<string> messageParts = new List<string>();
-		string headerText = UnsupportedModule ? ModInfo.moduleDisplayName : Module.BombComponent.GetModuleDisplayName();
+		string headerText = UnsupportedModule ? ModInfo.moduleTranslatedName ?? ModInfo.moduleDisplayName : Module.BombComponent.GetModuleDisplayName();
 		int strikePenalty = -TwitchPlaySettings.data.StrikePenalty * (TwitchPlaySettings.data.EnableRewardMultipleStrikes ? strikeCount : 1);
 		strikePenalty = (strikePenalty * OtherModes.ScoreMultiplier).RoundToInt();
 		bool VSAffect = OtherModes.VSModeOn && !string.IsNullOrEmpty(userNickName);
@@ -1118,14 +1118,14 @@ public abstract class ComponentSolver
 		if (!OtherModes.VSModeOn)
 			messageParts.Add(string.Format(TwitchPlaySettings.data.AwardPPA, userNickName,
 				pointsAwarded > 0 ? "awarded" : "deducted", pointsAwarded, Math.Abs(pointsAwarded) > 1 ? "s" : "",
-				Code, ModInfo.moduleDisplayName, pointsAwarded > 0 ? TwitchPlaySettings.data.PosPPAEmote : TwitchPlaySettings.data.NegPPAEmote));
+				Code, ModInfo.moduleTranslatedName ?? ModInfo.moduleDisplayName, pointsAwarded > 0 ? TwitchPlaySettings.data.PosPPAEmote : TwitchPlaySettings.data.NegPPAEmote));
 		else
 		{
 			CalculateVSHP(userNickName, pointsAwarded, out OtherModes.Team? teamDamaged, out int HPDamage);
 
 			messageParts.Add(string.Format(TwitchPlaySettings.data.AwardVSPPA, userNickName,
 				pointsAwarded > 0 ? "awarded" : "deducted", pointsAwarded, Math.Abs(pointsAwarded) > 1 ? "s" : "",
-				Code, ModInfo.moduleDisplayName, HPDamage, teamDamaged == OtherModes.Team.Evil ? "the evil team" : "the good team",
+				Code, ModInfo.moduleTranslatedName ?? ModInfo.moduleDisplayName, HPDamage, teamDamaged == OtherModes.Team.Evil ? "the evil team" : "the good team",
 				pointsAwarded > 0 ? TwitchPlaySettings.data.PosPPAEmote : TwitchPlaySettings.data.NegPPAEmote));
 
 			VSUpdate(teamDamaged, HPDamage);
@@ -1210,7 +1210,7 @@ public abstract class ComponentSolver
 		if (rewardBonus != 0)
 		{
 			TwitchPlaySettings.AddRewardBonus(rewardBonus);
-			IRCConnection.SendMessage($"モジュール{Code} ({ModInfo.moduleDisplayName})を解除して爆弾報酬が{rewardBonus}増加した!");
+			IRCConnection.SendMessage($"モジュール{Code} ({ModInfo.moduleTranslatedName ?? ModInfo.moduleDisplayName})を解除して爆弾報酬が{rewardBonus}増加した!");
 		}
 	}
 

@@ -10,6 +10,7 @@ using System.Text.RegularExpressions;
 public class ModuleInformation
 {
 	public string moduleDisplayName = string.Empty;
+	public string moduleTranslatedName;
 	public string moduleID;
 
 	public bool scoreStringOverride;

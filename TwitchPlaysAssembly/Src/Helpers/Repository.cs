@@ -38,6 +38,8 @@ public static class Repository
 		public Dictionary<string, object> TwitchPlays;
 
 		public List<string> Ignore;
+
+		public List<string> Sheets;
 	}
 #pragma warning restore CS0649
 }
