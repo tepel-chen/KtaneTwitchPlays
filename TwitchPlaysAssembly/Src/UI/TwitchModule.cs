@@ -296,7 +296,7 @@ public class TwitchModule : MonoBehaviour
 
 		yield return new WaitUntil(() => !Hidden);
 
-		IRCConnection.SendMessage($"Module {Code} is {HeaderText}");
+		IRCConnection.SendMessage($"モジュール{Code}は{HeaderText}です。");
 	}
 
 	private void GetStatusLightY()

@@ -462,7 +462,7 @@ public class TwitchPlaysService : MonoBehaviour
 					return;
 
 		if (TwitchPlaySettings.data.ShowUnrecognizedCommandError)
-			IRCConnection.SendMessage("@{0}, I don’t recognize that command.", msg.UserNickName, !msg.IsWhisper, msg.UserNickName);
+			IRCConnection.SendMessage("@{0} - そのコマンドを認識できません。", msg.UserNickName, !msg.IsWhisper, msg.UserNickName);
 	}
 
 	private bool AttemptInvokeCommand<TObj>(StaticCommand command, IRCMessage msg, string cmdStr, Match m, TObj extraObject)

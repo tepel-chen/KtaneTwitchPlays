@@ -1210,7 +1210,7 @@ public abstract class ComponentSolver
 		if (rewardBonus != 0)
 		{
 			TwitchPlaySettings.AddRewardBonus(rewardBonus);
-			IRCConnection.SendMessage($"Reward increased by {rewardBonus} for defusing module !{Code} ({ModInfo.moduleDisplayName}).");
+			IRCConnection.SendMessage($"モジュール{Code} ({ModInfo.moduleDisplayName})を解除して爆弾報酬が{rewardBonus}増加した!");
 		}
 	}
 

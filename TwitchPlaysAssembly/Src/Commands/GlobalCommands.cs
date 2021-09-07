@@ -269,7 +269,7 @@ static class GlobalCommands
 	/// <syntax>log</syntax>
 	/// <summary>Sends a message with the previous log.</summary>
 	[Command(@"(log|analysis)")]
-	public static void Log() => LogUploader.PostToChat(LogUploader.Instance.previousUrl, "Analysis for the previous bomb: {0}");
+	public static void Log() => LogUploader.PostToChat(LogUploader.Instance.previousUrl, "前回の爆弾の解析ログ: {0}");
 
 	/// <name>Get Log</name>
 	/// <syntax>lognow</syntax>
@@ -1661,7 +1661,7 @@ static class GlobalCommands
 			mission.GeneratorSetting = distribution.GenerateMission(modules, OtherModes.TimeModeOn, out int rewardPoints);
 			rewardPoints = (rewardPoints * OtherModes.ScoreMultiplier).RoundToInt();
 			TwitchPlaySettings.SetRewardBonus(rewardPoints);
-			IRCConnection.SendMessage("Reward for completing bomb: " + rewardPoints);
+			IRCConnection.SendMessage("爆弾を解除した時の報酬: " + rewardPoints);
 		}
 		catch (InvalidOperationException e)
 		{
