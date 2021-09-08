@@ -295,7 +295,7 @@ public static class CheckSupport
 				return false;
 
 			var current = modInfos.Find(modInfo => modInfo.moduleID == module.ModuleID);
-			if(current != null && current.moduleTranslatedName != null&& current.moduleTranslatedName.Length > 0) return false;
+			if(current != null && current.moduleTranslatedName != null && current.moduleTranslatedName.Length > 0) return false;
 			var modPath = Path.Combine(modWorkshopPath, module.SteamID);
 			return Directory.Exists(modPath);
 		}).ToArray();
@@ -307,7 +307,7 @@ public static class CheckSupport
 			var match = reManual.Match(translatedSheet);
 			var modInfo = modInfos.Find(m => m.moduleID == module.ModuleID);
 			modInfo.manualCodeOverride = true;
-			modInfo.manualCode = $"https://ktane.timwi.de/HTML/{module.Name}{match.Groups[0].Value}.html";
+			modInfo.manualCode = $"https://ktane.timwi.de/HTML/{Uri.EscapeDataString(module.Name + match.Groups[0].Value)}.html";
 			modInfo.moduleTranslatedName = match.Groups[1].Value;
 			IRCConnection.SendMessage($"次のモジュールのマニュアルが翻訳済みのものに置き換わりました: {match.Groups[1].Value}");
 			ModuleData.DataHasChanged = true;

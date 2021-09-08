@@ -976,7 +976,7 @@ public abstract class ComponentSolver
 			TwitchPlaySettings.AddRewardBonus(componentValue);
 		else
 		{
-			string headerText = UnsupportedModule ? ModInfo.moduleTranslatedName ?? ModInfo.moduleDisplayName : Module.BombComponent.GetModuleDisplayName();
+			string headerText = ModInfo.moduleTranslatedName ?? (UnsupportedModule ? ModInfo.moduleDisplayName : Module.BombComponent.GetModuleDisplayName());
 			CalculateVSHP(userNickName, componentValue, out OtherModes.Team? teamDamaged, out int HPDamage);
 			if (OtherModes.VSModeOn)
 			{

@@ -21,8 +21,8 @@ static class ModuleCommands
 		string helpText = string.IsNullOrEmpty(module.Solver.HelpMessage) ? string.Empty : string.Format(module.Solver.HelpMessage, module.Code, module.HeaderText);
 
 		IRCConnection.SendMessage(Regex.IsMatch(manualText, @"^https?://", RegexOptions.IgnoreCase)
-			? $"{module.HeaderText} : {helpText} : {manualText}"
-			: $"{module.HeaderText} : {helpText} : {UrlHelper.ManualFor(manualText, manualType, VanillaRuleModifier.GetModuleRuleSeed(module.Solver.ModInfo.moduleID) != 1)}");
+			? $"{module.Solver.ModInfo.moduleTranslatedName ?? module.HeaderText} : {helpText} : {manualText}"
+			: $"{module.Solver.ModInfo.moduleTranslatedName ?? module.HeaderText} : {helpText} : {UrlHelper.ManualFor(manualText, manualType, VanillaRuleModifier.GetModuleRuleSeed(module.Solver.ModInfo.moduleID) != 1)}");
 	}
 
 	/// <name>Player</name>
@@ -31,8 +31,8 @@ static class ModuleCommands
 	/// <restriction>SolvedAllowed</restriction>
 	[Command("player"), SolvedAllowed]
 	public static void Player(TwitchModule module, string user) => IRCConnection.SendMessage(module.PlayerName != null
-			? string.Format(TwitchPlaySettings.data.ModulePlayer, module.Code, module.PlayerName, module.HeaderText)
-			: string.Format(TwitchPlaySettings.data.ModuleNotClaimed, user, module.Code, module.HeaderText));
+			? string.Format(TwitchPlaySettings.data.ModulePlayer, module.Code, module.PlayerName, module.Solver.ModInfo.moduleTranslatedName ?? module.HeaderText)
+			: string.Format(TwitchPlaySettings.data.ModuleNotClaimed, user, module.Code, module.Solver.ModInfo.moduleTranslatedName ?? module.HeaderText));
 
 	/// <name>Queue Flip</name>
 	/// <syntax>queue flip</syntax>
@@ -45,7 +45,7 @@ static class ModuleCommands
 			module.Solver.TurnQueued = true;
 			module.StartCoroutine(module.Solver.TurnBombOnSolve());
 		}
-		IRCConnection.SendMessageFormat(TwitchPlaySettings.data.TurnBombOnSolve, module.Code, module.HeaderText);
+		IRCConnection.SendMessageFormat(TwitchPlaySettings.data.TurnBombOnSolve, module.Code, module.Solver.ModInfo.moduleTranslatedName ?? module.HeaderText);
 	}
 
 	/// <name>Cancel Queued Flip</name>
@@ -55,7 +55,7 @@ static class ModuleCommands
 	public static void BombTurnAroundCancel(TwitchModule module)
 	{
 		module.Solver.TurnQueued = false;
-		IRCConnection.SendMessageFormat(TwitchPlaySettings.data.CancelBombTurn, module.Code, module.HeaderText);
+		IRCConnection.SendMessageFormat(TwitchPlaySettings.data.CancelBombTurn, module.Code, module.Solver.ModInfo.moduleTranslatedName ?? module.HeaderText);
 	}
 
 	/// <name>Claim</name>
@@ -108,7 +108,7 @@ static class ModuleCommands
 			// Unsupported modules can always be auto-solved
 			(module.Unsupported || module.Solver.GetType() == typeof(UnsupportedModComponentSolver))
 		)
-			module.Solver.SolveModule($"A module ({module.HeaderText}) is being automatically solved.");
+			module.Solver.SolveModule($"A module ({module.Solver.ModInfo.moduleTranslatedName ?? module.HeaderText}) is being automatically solved.");
 	}
 
 	/// <name>Votesolve</name>
@@ -132,7 +132,7 @@ static class ModuleCommands
 	{
 		if (module.Solved)
 		{
-			IRCConnection.SendMessageFormat(TwitchPlaySettings.data.AlreadySolved, module.Code, module.PlayerName, user, module.HeaderText);
+			IRCConnection.SendMessageFormat(TwitchPlaySettings.data.AlreadySolved, module.Code, module.PlayerName, user, module.Solver.ModInfo.moduleTranslatedName ?? module.HeaderText);
 			return;
 		}
 
@@ -146,7 +146,7 @@ static class ModuleCommands
 		// Error if a non-mod tries to unclaim someone else’s module
 		if (!UserAccess.HasAccess(user, AccessLevel.Mod, true) && module.PlayerName != user)
 		{
-			IRCConnection.SendMessage($"{user}, module {module.Code} ({module.HeaderText}) is not claimed by you.");
+			IRCConnection.SendMessage($"{user} - モジュール {module.Code} ({module.Solver.ModInfo.moduleTranslatedName ?? module.HeaderText})はあなたに割り当てられていません。");
 			return;
 		}
 
@@ -164,7 +164,7 @@ static class ModuleCommands
 	{
 		module.SetBannerColor(module.SolvedBackgroundColor);
 		module.PlayerName = null;
-		IRCConnection.SendMessageFormat(TwitchPlaySettings.data.ModuleReady, module.Code, user, module.HeaderText);
+		IRCConnection.SendMessageFormat(TwitchPlaySettings.data.ModuleReady, module.Code, user, module.Solver.ModInfo.moduleTranslatedName ?? module.HeaderText);
 	}
 
 	/// <name>Assign</name>
@@ -223,7 +223,7 @@ static class ModuleCommands
 
 		// Module is already claimed by the same user
 		else if (module.PlayerName == user)
-			IRCConnection.SendMessageFormat(TwitchPlaySettings.data.ModuleAlreadyOwned, user, module.Code, module.HeaderText);
+			IRCConnection.SendMessageFormat(TwitchPlaySettings.data.ModuleAlreadyOwned, user, module.Code, module.Solver.ModInfo.moduleTranslatedName ?? module.HeaderText);
 
 		// Module is not claimed at all: just claim it
 		else if (module.PlayerName == null)
@@ -234,10 +234,10 @@ static class ModuleCommands
 		{
 			module.AddToClaimQueue(user);
 			if (module.TakeInProgress != null)
-				IRCConnection.SendMessageFormat(TwitchPlaySettings.data.TakeInProgress, user, module.Code, module.HeaderText);
+				IRCConnection.SendMessageFormat(TwitchPlaySettings.data.TakeInProgress, user, module.Code, module.Solver.ModInfo.moduleTranslatedName ?? module.HeaderText);
 			else
 			{
-				IRCConnection.SendMessageFormat(TwitchPlaySettings.data.TakeModule, module.PlayerName, user, module.Code, module.HeaderText);
+				IRCConnection.SendMessageFormat(TwitchPlaySettings.data.TakeModule, module.PlayerName, user, module.Code, module.Solver.ModInfo.moduleTranslatedName ?? module.HeaderText);
 				module.TakeUser = user;
 				module.TakeInProgress = module.StartCoroutine(module.ProcessTakeover());
 			}
@@ -259,7 +259,7 @@ static class ModuleCommands
 		// The module belongs to this user and there’s a takeover attempt in progress: cancel the takeover attempt
 		if (module.PlayerName == user && module.TakeInProgress != null)
 		{
-			IRCConnection.SendMessageFormat(TwitchPlaySettings.data.ModuleIsMine, module.PlayerName, module.Code, module.HeaderText);
+			IRCConnection.SendMessageFormat(TwitchPlaySettings.data.ModuleIsMine, module.PlayerName, module.Code, module.Solver.ModInfo.moduleTranslatedName ?? module.HeaderText);
 			module.StopCoroutine(module.TakeInProgress);
 			module.TakeInProgress = null;
 			module.TakeUser = null;
@@ -271,7 +271,7 @@ static class ModuleCommands
 
 		// Someone else has a claim on the module
 		else if (module.PlayerName != user)
-			IRCConnection.SendMessageFormat(TwitchPlaySettings.data.AlreadyClaimed, module.Code, module.PlayerName, user, module.HeaderText);
+			IRCConnection.SendMessageFormat(TwitchPlaySettings.data.AlreadyClaimed, module.Code, module.PlayerName, user, module.Solver.ModInfo.moduleTranslatedName ?? module.HeaderText);
 
 		// If the user has a claim on the module but there’s no takeover attempt, just ignore this command
 	}
