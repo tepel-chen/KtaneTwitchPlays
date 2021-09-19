@@ -983,7 +983,7 @@ public abstract class ComponentSolver
 				if (!UnsupportedModule)
 					messageParts.Add(string.Format(TwitchPlaySettings.data.AwardVsSolve, Code, userNickName,
 						componentValue, headerText, HPDamage,
-						teamDamaged == OtherModes.Team.Evil ? "the evil team" : "the good team"));
+						teamDamaged == OtherModes.Team.Evil ? "白組" : "紅組"));
 				else
 					messageParts.Add(string.Format(TwitchPlaySettings.data.AwardSolve, Code, userNickName,
 						componentValue, headerText));
@@ -1038,7 +1038,7 @@ public abstract class ComponentSolver
 		{
 			CalculateVSHP(userNickName, strikePenalty, out teamDamaged, out HPDamage);
 			messageParts.Add(string.Format(TwitchPlaySettings.data.AwardVsStrike, Code,
-				strikeCount == 1 ? "a" : strikeCount.ToString(), strikeCount == 1 ? "" : "s", "0", teamDamaged == OtherModes.Team.Good ? "the good team" : "the evil team",
+				strikeCount == 1 ? "a" : strikeCount.ToString(), strikeCount == 1 ? "" : "s", "0", teamDamaged == OtherModes.Team.Good ? "紅組" : "白組",
 				string.IsNullOrEmpty(StrikeMessage) || StrikeMessageConflict ? "" : " caused by " + StrikeMessage, headerText, HPDamage, strikePenalty, userNickName));
 		}
 		else
@@ -1127,7 +1127,7 @@ public abstract class ComponentSolver
 
 			messageParts.Add(string.Format(TwitchPlaySettings.data.AwardVSPPA, userNickName,
 				pointsAwarded > 0 ? "獲得した" : "失った", pointsAwarded, Math.Abs(pointsAwarded) > 1 ? "s" : "",
-				Code, ModInfo.moduleTranslatedName ?? ModInfo.moduleDisplayName, HPDamage, teamDamaged == OtherModes.Team.Evil ? "the evil team" : "the good team",
+				Code, ModInfo.moduleTranslatedName ?? ModInfo.moduleDisplayName, HPDamage, teamDamaged == OtherModes.Team.Evil ? "白組" : "紅組",
 				pointsAwarded > 0 ? TwitchPlaySettings.data.PosPPAEmote : TwitchPlaySettings.data.NegPPAEmote));
 
 			VSUpdate(teamDamaged, HPDamage);

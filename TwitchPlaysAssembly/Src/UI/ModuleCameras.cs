@@ -432,7 +432,7 @@ public class ModuleCameras : MonoBehaviour
 			else if (OtherModes.TrainingModeOn && TwitchGame.Instance.TrainingModeRemainingTime > 0 && ix == 2)
 			{
 				string _plural = TwitchGame.Instance.TrainingModeRemainingTime == 1 ? "" : "s";
-				NotesTexts[ix].text = $"Training Mode Auto-Detonation is enabled. This bomb will be detonated in {TwitchGame.Instance.TrainingModeRemainingTime} minute{_plural}.";
+				NotesTexts[ix].text = $"このトレーニングモードでは自動起爆が有効になっています。この爆弾は残り{TwitchGame.Instance.TrainingModeRemainingTime}分で爆発します。";
 				if (!TwitchPlaySettings.data.DarkMode) NotesTextBackgrounds[ix].color = Color.HSVToRGB(0.38f, .246f, .93f);
 				else NotesTextBackgrounds[ix].color = new Color32(0x00, 0xAD, 0x03, 0xFF);
 				NotesTextIDs[ix].text = "";
