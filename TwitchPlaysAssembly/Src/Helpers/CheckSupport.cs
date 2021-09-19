@@ -21,7 +21,6 @@ public static class CheckSupport
 		yield return null;
 
 		yield return LoadData();
-		TranslateComponents(Modules);
 
 		var alert = Object.Instantiate(IRCConnection.Instance.ConnectionAlert, IRCConnection.Instance.ConnectionAlert.transform.parent);
 		gameObjects.Add(alert);
@@ -280,40 +279,6 @@ public static class CheckSupport
 		}
 
 		Object.Destroy(disabledParent);
-	}
-
-
-	static void TranslateComponents(List<KtaneModule> modules)
-	{
-		
-		var modWorkshopPath = Path.GetFullPath(new[] { SteamDirectory, "steamapps", "workshop", "content", "341800" }.Aggregate(Path.Combine));
-		var reManual = new Regex(@"^ translated \(日本語 — ([^)]+)\)( \([^)]+\))?");
-		var modInfos = ComponentSolverFactory.GetModuleInformation().ToList();
-		var validModules = modules.Where(module =>
-		{
-			if (module.SteamID == null || module.Type == "Widget" || module.Sheets == null)
-				return false;
-
-			var current = modInfos.Find(modInfo => modInfo.moduleID == module.ModuleID);
-			if(current != null && current.moduleTranslatedName != null && current.moduleTranslatedName.Length > 0) return false;
-			var modPath = Path.Combine(modWorkshopPath, module.SteamID);
-			return Directory.Exists(modPath);
-		}).ToArray();
-
-		foreach (var module in validModules)
-		{
-			var translatedSheet = module.Sheets.Find(sheet => reManual.IsMatch(sheet));
-			if(translatedSheet == null) continue;
-			var match = reManual.Match(translatedSheet);
-			var modInfo = modInfos.Find(m => m.moduleID == module.ModuleID);
-			modInfo.manualCodeOverride = true;
-			modInfo.manualCode = $"https://ktane.timwi.de/HTML/{Uri.EscapeDataString(module.Name + match.Groups[0].Value)}.html";
-			modInfo.moduleTranslatedName = match.Groups[1].Value;
-			IRCConnection.SendMessage($"次のモジュールのマニュアルが翻訳済みのものに置き換わりました: {match.Groups[1].Value}");
-			ModuleData.DataHasChanged = true;
-		}
-		
-		ModuleData.WriteDataToFile();
 	}
 
 	static string SteamDirectory

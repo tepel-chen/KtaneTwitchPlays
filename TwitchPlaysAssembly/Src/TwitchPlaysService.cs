@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Assets.Scripts.Props;
+using TwitchPlaysAssembly.Src.Helpers;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -277,6 +278,7 @@ public class TwitchPlaysService : MonoBehaviour
 					_coroutinesToStart.Enqueue(Repository.LoadData());
 					if (TwitchPlaySettings.data.TestModuleCompatibility && !TwitchPlaySettings.data.TwitchPlaysDebugEnabled)
 						_coroutinesToStart.Enqueue(CheckSupport.FindSupportedModules());
+					TranslationInfo.TranslateComponents(Repository.Modules);
 				}
 
 				// Clear out the retry reward if we return to the setup room since the retry button doesn't return to setup.
@@ -701,12 +703,14 @@ public class TwitchPlaysService : MonoBehaviour
 
 	private static IEnumerator AutomaticUpdateCheck()
 	{
-		yield return Updater.CheckForUpdates();
+		// 自動アップデート無効化
+		/* yield return Updater.CheckForUpdates();
 
 		if (Updater.UpdateAvailable)
 		{
 			IRCConnection.SendMessage("There is a new update to Twitch Plays!");
-		}
+		} */
+		yield return null;
 	}
 
 	private IEnumerator WaitForBombs(Action then)

@@ -14,7 +14,23 @@ public static class OtherModes
 	public static TwitchPlaysMode currentMode = TwitchPlaysMode.Normal;
 	public static TwitchPlaysMode nextMode = TwitchPlaysMode.Normal;
 
-	public static string GetName(TwitchPlaysMode mode) => Enum.GetName(typeof(TwitchPlaysMode), mode);
+	public static string GetName(TwitchPlaysMode mode) {
+		switch (mode)
+		{
+				case TwitchPlaysMode.Normal:
+					return "通常";
+				case TwitchPlaysMode.Time:
+					return "タイム";
+				case TwitchPlaysMode.VS:
+					return "VS";
+				case TwitchPlaysMode.Zen:
+					return "禅";
+				case TwitchPlaysMode.Training:
+					return "トレーニング";
+				default:
+					return "不明な";
+		}
+	}
 
 	public static bool InMode(TwitchPlaysMode mode) => currentMode == mode;
 

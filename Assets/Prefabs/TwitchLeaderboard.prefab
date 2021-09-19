@@ -402,7 +402,7 @@ MonoBehaviour:
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_FontData:
-    m_Font: {fileID: 12800000, guid: 8f3e1ef544a0a884aa2e04cb89846e26, type: 3}
+    m_Font: {fileID: 12800000, guid: 75ada6a2847702c4bbc3db9de81c4bd0, type: 3}
     m_FontSize: 23
     m_FontStyle: 0
     m_BestFit: 0
@@ -414,7 +414,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Return to the office
+  m_Text: オフィスに戻る
 --- !u!114 &114000010763755190
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -616,7 +616,7 @@ MonoBehaviour:
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_FontData:
-    m_Font: {fileID: 12800000, guid: 8f3e1ef544a0a884aa2e04cb89846e26, type: 3}
+    m_Font: {fileID: 12800000, guid: 75ada6a2847702c4bbc3db9de81c4bd0, type: 3}
     m_FontSize: 23
     m_FontStyle: 0
     m_BestFit: 0
@@ -628,7 +628,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Start a new bomb
+  m_Text: 新しい爆弾を始める
 --- !u!114 &114000012953259696
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -813,7 +813,7 @@ MonoBehaviour:
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_FontData:
-    m_Font: {fileID: 12800000, guid: 8f3e1ef544a0a884aa2e04cb89846e26, type: 3}
+    m_Font: {fileID: 12800000, guid: 75ada6a2847702c4bbc3db9de81c4bd0, type: 3}
     m_FontSize: 23
     m_FontStyle: 0
     m_BestFit: 0
@@ -825,7 +825,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Attempt this bomb again
+  m_Text: もう一度同じ爆弾を解除する
 --- !u!114 &114599699151589096
 MonoBehaviour:
   m_ObjectHideFlags: 1

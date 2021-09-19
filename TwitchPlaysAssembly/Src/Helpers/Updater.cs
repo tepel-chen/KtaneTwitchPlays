@@ -49,6 +49,10 @@ static class Updater
 
 	public static IEnumerator Update(bool forced)
 	{
+		yield return null;
+		IRCConnection.SendMessage("自動アップデートは無効化されています。");
+
+		/* 
 		UpdateAvailable |= forced;
 
 		if (!UpdateAvailable) yield return CheckForUpdates();
@@ -74,6 +78,7 @@ static class Updater
 		buildFolder.MoveToSafe(modFolder);
 
 		GlobalCommands.RestartGame();
+		*/
 	}
 
 	public static IEnumerator Revert()

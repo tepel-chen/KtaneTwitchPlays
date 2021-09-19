@@ -44,21 +44,21 @@ public static class Votes
 	{
 		{
 			VoteTypes.Detonation, new VoteData {
-				name = "Detonate the bomb",
+				name = "爆弾の起爆",
 				validityChecks = new List<Tuple<Func<bool>, string>>
 				{
-					createCheck(() => TwitchGame.Instance.VoteDetonateAttempted, "Sorry, {0}, a detonation vote was already attempted on this bomb. Another one cannot be started.")
+					createCheck(() => TwitchGame.Instance.VoteDetonateAttempted, "@{0} - 投票による起爆はこのゲームで一度拒否されています。再び爆弾の起爆の投票を開始することはできません。")
 				},
 				onSuccess = () => TwitchGame.Instance.Bombs[0].CauseExplosionByVote()
 			}
 		},
 		{
 			VoteTypes.VSModeToggle, new VoteData {
-				name = "Toggle VS mode",
+				name = "VSモードの開始",
 				validityChecks = null,
 				onSuccess = () => {
 					OtherModes.Toggle(TwitchPlaysMode.VS);
-					IRCConnection.SendMessage($"{OtherModes.GetName(OtherModes.nextMode)} mode will be enabled next round.");
+					IRCConnection.SendMessage($"次のゲームは{OtherModes.GetName(OtherModes.nextMode)}モードになります。");
 				}
 			}
 		},
@@ -66,25 +66,25 @@ public static class Votes
 			VoteTypes.Solve, new VoteData {
 				validityChecks = new List<Tuple<Func<bool>, string>>
 				{
-					createCheck(() => !TwitchPlaySettings.data.EnableVoteSolve, "Sorry, {0}, votesolving is disabled."),
-					createCheck(() => voteModule.Solver.AttemptedForcedSolve, "{0} - そのモジュールはすでに投票により自動解除されました。"),
-					createCheck(() => OtherModes.currentMode == TwitchPlaysMode.VS, "Sorry, {0}, votesolving is disabled during vsmode bombs."),
-					createCheck(() => TwitchGame.Instance.VoteSolveCount >= 2, "{0} - すでに2回の投票による自動解除が行われました。これ以上投票による自動解除を開始することはできません。"),
+					createCheck(() => !TwitchPlaySettings.data.EnableVoteSolve, "@{0} - 投票による自動解除は無効化されています。"),
+					createCheck(() => voteModule.Solver.AttemptedForcedSolve, "@{0} - そのモジュールはすでに投票により自動解除されました。"),
+					createCheck(() => OtherModes.currentMode == TwitchPlaysMode.VS, "@{0} - 投票による自動解除はVSモードでは無効化されています。"),
+					createCheck(() => TwitchGame.Instance.VoteSolveCount >= 2, "@{0} - すでに2回の投票による自動解除が行われました。これ以上投票による自動解除を開始することはできません。"),
 					createCheck(() =>
 						voteModule.BombComponent.GetModuleID().IsBossMod() &&
 						((double)TwitchGame.Instance.CurrentBomb.BombSolvedModules / TwitchGame.Instance.CurrentBomb.BombSolvableModules >= .10f ||
 						TwitchGame.Instance.CurrentBomb.BombStartingTimer - TwitchGame.Instance.CurrentBomb.CurrentTimer < 120),
-						"{0} - ボスモジュールは10%未満のモジュールが解除されていて、かつ2分以上経過した後にのみ投票による自動解除が行えます。"),
+						"@{0} - ボスモジュールは10%未満のモジュールが解除されていて、かつ2分以上経過した後にのみ投票による自動解除が行えます。"),
 					createCheck(() =>
 						((double)TwitchGame.Instance.CurrentBomb.BombSolvedModuleIDs.Count(x => !x.IsBossMod()) /
 						TwitchGame.Instance.CurrentBomb.BombSolvableModuleIDs.Count(x => !x.IsBossMod()) <= 0.75f) &&
 						!voteModule.BombComponent.GetModuleID().IsBossMod(),
-						"{0} - 投票による自動解除は爆弾の75%以上のモジュールが解除された場合のみ開始することができます。"),
-					createCheck(() => voteModule.Claimed, "{0} - 投票による自動解除は割り当てが行われていないモジュールのみに行うことができます。"),
-					createCheck(() => voteModule.ClaimQueue.Count > 0, "{0} - そのモジュールは割り当ての予約がされているため、投票による自動解除を開始することができません。"),
-					createCheck(() => (int)voteModule.ScoreMethods.Sum(x => x.CalculateScore(null)) <= 8 && !voteModule.BombComponent.GetModuleID().IsBossMod(), "{0} - 投票による自動解除は点数が8以上のモジュールのみに行うことができます。"),
-					createCheck(() => TwitchGame.Instance.CommandQueue.Any(x => x.Message.Text.StartsWith($"!{voteModule.Code} ")), "{0} - そのモジュールのコマンドがキューされているため、投票による自動解除を開始することができません。"),
-					createCheck(() => GameplayState.MissionToLoad != "custom", "{0} - ミッション中には投票による自動解除を開始することができません。")
+						"@{0} - 投票による自動解除は爆弾の75%以上のモジュールが解除された場合のみ開始することができます。"),
+					createCheck(() => voteModule.Claimed, "@{0} - 投票による自動解除は割り当てが行われていないモジュールのみに行うことができます。"),
+					createCheck(() => voteModule.ClaimQueue.Count > 0, "@{0} - そのモジュールは割り当ての予約がされているため、投票による自動解除を開始することができません。"),
+					createCheck(() => (int)voteModule.ScoreMethods.Sum(x => x.CalculateScore(null)) <= 8 && !voteModule.BombComponent.GetModuleID().IsBossMod(), "@{0} - 投票による自動解除は点数が8以上のモジュールのみに行うことができます。"),
+					createCheck(() => TwitchGame.Instance.CommandQueue.Any(x => x.Message.Text.StartsWith($"!{voteModule.Code} ")), "@{0} - そのモジュールのコマンドがキューされているため、投票による自動解除を開始することができません。"),
+					createCheck(() => GameplayState.MissionToLoad != "custom", "@{0} - ミッション中には投票による自動解除を開始することができません。")
 				},
 				onSuccess = () =>
 				{
@@ -241,13 +241,13 @@ public static class Votes
 	{
 		if (!TwitchPlaySettings.data.EnableVoting)
 		{
-			IRCConnection.SendMessage($"Sorry, {user}, voting is disabled.");
+			IRCConnection.SendMessage($"@{user} - 投票は無効化されています。");
 			return;
 		}
 
 		if (Active)
 		{
-			IRCConnection.SendMessage($"Sorry, {user}, there's already a vote in progress.");
+			IRCConnection.SendMessage($"@{user} -　現在投票は進行中です");
 			return;
 		}
 
@@ -258,20 +258,20 @@ public static class Votes
 	{
 		if (!Active)
 		{
-			IRCConnection.SendMessage($"{user}, there is no vote currently in progress.");
+			IRCConnection.SendMessage($"@{user} - 現在進行中の投票はありません。");
 			return;
 		}
-		IRCConnection.SendMessage($"The current vote to \"{PossibleVotes[CurrentVoteType].name}\" lasts for {TimeLeft} more seconds.");
+		IRCConnection.SendMessage($"{PossibleVotes[CurrentVoteType].name}の投票は残り{TimeLeft}秒です。");
 	}
 
 	public static void CancelVote(string user)
 	{
 		if (!Active)
 		{
-			IRCConnection.SendMessage($"{user}, there is no vote currently in progress.");
+			IRCConnection.SendMessage($"@{user} - 現在進行中の投票はありません。");
 			return;
 		}
-		IRCConnection.SendMessage("The vote has been cancelled.");
+		IRCConnection.SendMessage("投票はキャンセルされました。");
 		if (CurrentVoteType == VoteTypes.Solve)
 			voteModule.SetBannerColor(voteModule.unclaimedBackgroundColor);
 		DestroyVote();
@@ -281,10 +281,10 @@ public static class Votes
 	{
 		if (!Active)
 		{
-			IRCConnection.SendMessage($"{user}, there is no vote currently in progress.");
+			IRCConnection.SendMessage($"@{user} - 現在進行中の投票はありません。");
 			return;
 		}
-		IRCConnection.SendMessage("The vote is being ended now.");
+		IRCConnection.SendMessage("投票は時間を切り上げて終了しました。");
 		VoteTimeRemaining = 0f;
 	}
 

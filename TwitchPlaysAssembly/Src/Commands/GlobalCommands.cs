@@ -26,8 +26,8 @@ static class GlobalCommands
 			TwitchPlaySettings.data.EnableLetterCodes ? alphabet[Random.Range(0, alphabet.Length)] + alphabet[Random.Range(0, alphabet.Length)] : Random.Range(1, 100).ToString()
 		};
 
-		IRCConnection.SendMessage(string.Format("!{0} manual [link to module {0}'s manual] | Go to {1} to get manuals for KTaNE", randomCodes[0], TwitchPlaySettings.data.RepositoryUrl), user, !isWhisper);
-		IRCConnection.SendMessage(string.Format("!{0} help [commands for module {0}] | Go to {1} to get the command reference for TP:KTaNE (multiple sections, see the menu on the left)", randomCodes[1], UrlHelper.CommandReference), user, !isWhisper);
+		IRCConnection.SendMessage(string.Format("!{0} manual [マニュアルへのリンク] | マニュアルは {1}?lang=ja から探すことができます。", randomCodes[0], TwitchPlaySettings.data.RepositoryUrl), user, !isWhisper);
+		IRCConnection.SendMessage(string.Format("!{0} help [モジュールのコマンド] | コマンドについては https://tepel-chen.github.io/tpCommands/ を参照してください。", randomCodes[1], UrlHelper.CommandReference), user, !isWhisper);
 	}
 
 	/// <name>Bonus Points</name>
@@ -76,7 +76,7 @@ static class GlobalCommands
 
 		if (count < 1)
 		{
-			IRCConnection.SendMessageFormat("Sorry @{0}, cannot refund less than 1 strike!", user);
+			IRCConnection.SendMessageFormat("@{0} - 取り消しするミスの数は1以上で無ければなりません。", user);
 			return;
 		}
 
@@ -84,7 +84,7 @@ static class GlobalCommands
 		Leaderboard.Instance.AddStrike(targetPlayer, new Color(.31f, .31f, .31f), -1 * count);
 		Leaderboard.Instance.AddScore(targetPlayer, new Color(.31f, .31f, .31f), points);
 
-		IRCConnection.SendMessageFormat("Refunded {0} strike{1} and {2} score from {3}.", count, count != 1 ? "s" : "", points, targetPlayer);
+		IRCConnection.SendMessageFormat("@{2}から{0}回のミスと{1}ポイントの減点をを取り消しました。", count, points, targetPlayer);
 	}
 
 	/// <name>Strike Transfer</name>
@@ -102,7 +102,7 @@ static class GlobalCommands
 
 		if (count < 1)
 		{
-			IRCConnection.SendMessageFormat("Sorry @{0}, cannot transfer less than 1 strike!", user);
+			IRCConnection.SendMessageFormat("@{0} - 移行するミスの数は1以上で無ければなりません。", user);
 			return;
 		}
 
@@ -112,7 +112,7 @@ static class GlobalCommands
 		Leaderboard.Instance.AddStrike(toPlayer, new Color(.31f, .31f, .31f), count);
 		Leaderboard.Instance.AddScore(toPlayer, new Color(.31f, .31f, .31f), -1 * points);
 
-		IRCConnection.SendMessageFormat("Transferred {0} strike{1} and {2} score from {3} to {4}.", count, count != 1 ? "s" : "", points, fromPlayer, toPlayer);
+		IRCConnection.SendMessageFormat("@{2}から{3}へ、{0}回のミスと{1}ポイントの減点をを移行ました。", count, points, fromPlayer, toPlayer);
 	}
 
 	/// <name>Set Reward</name>
@@ -157,9 +157,9 @@ static class GlobalCommands
 	[Command(@"modes?")]
 	public static void ShowMode(string user, bool isWhisper)
 	{
-		IRCConnection.SendMessage(string.Format("{0} mode is currently enabled. The next round is set to {1} mode.", OtherModes.GetName(OtherModes.currentMode), OtherModes.GetName(OtherModes.nextMode)), user, !isWhisper);
+		IRCConnection.SendMessage(string.Format("現在は{0}モードが有効化されています。次のゲームは{1}モードになります。", OtherModes.GetName(OtherModes.currentMode), OtherModes.GetName(OtherModes.nextMode)), user, !isWhisper);
 		if (TwitchPlaySettings.data.AnarchyMode)
-			IRCConnection.SendMessage("We are currently in anarchy mode.", user, !isWhisper);
+			IRCConnection.SendMessage("現在アナーキーモードです。", user, !isWhisper);
 	}
 
 	/// <name>Reset User</name>
@@ -176,14 +176,14 @@ static class GlobalCommands
 			Leaderboard.Instance.GetSoloRank(usertrimmed, out var soloEntry);
 			if (entry == null && soloEntry == null)
 			{
-				IRCConnection.SendMessage($"User {usertrimmed} was not found or has already been reset", user, !isWhisper);
+				IRCConnection.SendMessage($"ユーザー{usertrimmed}はすでにリセットされたか、あるいは見つかりませんでした。", user, !isWhisper);
 				continue;
 			}
 			if (entry != null)
 				Leaderboard.Instance.DeleteEntry(entry);
 			if (soloEntry != null)
 				Leaderboard.Instance.DeleteSoloEntry(soloEntry);
-			IRCConnection.SendMessage($"User {usertrimmed} has been reset", userRaw, !isWhisper);
+			IRCConnection.SendMessage($"ユーザー{usertrimmed}はリセットされました。", userRaw, !isWhisper);
 		}
 	}
 
@@ -337,7 +337,7 @@ static class GlobalCommands
 					goto default;
 				}
 
-				IRCConnection.SendMessage($@"Sorry, there were no modules with the name “{parameter}”.", user, !isWhisper);
+				IRCConnection.SendMessage($@"{parameter}というモジュールは見つかりませんでした。", user, !isWhisper);
 				break;
 
 			case 1:
@@ -347,19 +347,19 @@ static class GlobalCommands
 					case "help":
 					case "helpmessage":
 					case "help message":
-						IRCConnection.SendMessage($"Module {moduleName} help message: {modules[0].helpText}", user, !isWhisper);
+						IRCConnection.SendMessage($"モジュール{moduleName}のヘルプメッセージ: {modules[0].helpText}", user, !isWhisper);
 						break;
 					case "manual":
 					case "manualcode":
 					case "manual code":
-						IRCConnection.SendMessage($"Module {moduleName} manual code: {(string.IsNullOrEmpty(modules[0].manualCode) ? modules[0].moduleDisplayName : modules[0].manualCode)}", user, !isWhisper);
+						IRCConnection.SendMessage($"モジュール{moduleName}のマニュアルページ: {(string.IsNullOrEmpty(modules[0].manualCode) ? modules[0].moduleDisplayName : modules[0].manualCode)}", user, !isWhisper);
 						break;
 					case "points":
 					case "score":
-						IRCConnection.SendMessage($"Module {moduleName} score string: {modules[0].ScoreExplanation}", user, !isWhisper);
+						IRCConnection.SendMessage($"モジュール{moduleName}のスコア: {modules[0].ScoreExplanation}", user, !isWhisper);
 						break;
 					case "statuslight":
-						IRCConnection.SendMessage($"Module {moduleName} status light position: {modules[0].statusLightPosition}", user, !isWhisper);
+						IRCConnection.SendMessage($"モジュール{moduleName}のステータスライトの位置: {modules[0].statusLightPosition}", user, !isWhisper);
 						break;
 					case "module pin allowed":
 					case "camera pin allowed":
@@ -371,28 +371,28 @@ static class GlobalCommands
 					case "camerapinallowed":
 					case "pinallowed":
 					case "pin allowed":
-						IRCConnection.SendMessage($"Module {moduleName} pinning always allowed: {(modules[0].CameraPinningAlwaysAllowed ? "Yes" : "No")}", user, !isWhisper);
+						IRCConnection.SendMessage($"モジュール{moduleName}のカメラ固定: {(modules[0].CameraPinningAlwaysAllowed ? "常に許可" : "通常禁止")}", user, !isWhisper);
 						break;
 					case "color":
 					case "colour":
 						var moduleColor = JsonConvert.SerializeObject(TwitchPlaySettings.data.UnclaimedColor, Formatting.None, new ColorConverter());
 						if (modules[0].unclaimedColor != new Color())
 							moduleColor = JsonConvert.SerializeObject(modules[0].unclaimedColor, Formatting.None, new ColorConverter());
-						IRCConnection.SendMessage($"Module {moduleName} unclaimed color: {moduleColor}", user, !isWhisper);
+						IRCConnection.SendMessage($"モジュール{moduleName}の非割り当て状態のときの色: {moduleColor}", user, !isWhisper);
 						break;
 					case "commands":
 					case "valid commands":
 					case "validcommands":
-						IRCConnection.SendMessage($"Module {moduleName} valid commands: {modules[0].validCommands}", user, !isWhisper);
+						IRCConnection.SendMessage($"モジュール{moduleName}の有効なコマンド: {modules[0].validCommands}", user, !isWhisper);
 						break;
 					case "announcemodule":
 					case "announce module":
 					case "announce":
 					case "announcement":
-						IRCConnection.SendMessage($"Module {moduleName} announce on bomb start: {(modules[0].announceModule ? "Yes" : "No")}", user, !isWhisper);
+						IRCConnection.SendMessage($"モジュール{moduleName}の爆弾開始時のアナウンス: {(modules[0].announceModule ? "する" : "しない")}", user, !isWhisper);
 						break;
 					case "unclaimable":
-						IRCConnection.SendMessage($"Module {moduleName} unclaimable: {(modules[0].unclaimable ? "Yes" : "No")}", user, !isWhisper);
+						IRCConnection.SendMessage($"モジュール{moduleName}の割り当て禁止: {(modules[0].unclaimable ? "禁止" : "許可")}", user, !isWhisper);
 						break;
 				}
 				break;
@@ -405,7 +405,7 @@ static class GlobalCommands
 					goto case 1;
 				}
 
-				IRCConnection.SendMessage($"Sorry, there is more than one module matching your search term. They are: {modules.Take(5).Select(x => $"“{x.moduleDisplayName}” ({x.moduleID})").Join(", ")}", user, !isWhisper);
+				IRCConnection.SendMessage($"検索文字列に一致するモジュールが複数見つかりました: {modules.Take(5).Select(x => $"“{x.moduleDisplayName}” ({x.moduleID})").Join(", ")}", user, !isWhisper);
 				break;
 		}
 	}
@@ -435,7 +435,7 @@ static class GlobalCommands
 					goto default;
 				}
 
-				IRCConnection.SendMessage($"Sorry, there were no modules with the name “{search}”.", user, !isWhisper);
+				IRCConnection.SendMessage($"{search}というモジュールは見つかりませんでした。", user, !isWhisper);
 				break;
 
 			case 1:
@@ -457,7 +457,7 @@ static class GlobalCommands
 							module.helpText = changeTo;
 							module.helpTextOverride = true;
 						}
-						IRCConnection.SendMessage($"Module {moduleName} help message changed to: {module.helpText}", user, !isWhisper);
+						IRCConnection.SendMessage($"モジュール{moduleName}のヘルプメッセージは次に書き換わりました: {module.helpText}", user, !isWhisper);
 						break;
 					case "manual":
 					case "manualcode":
@@ -473,7 +473,7 @@ static class GlobalCommands
 							module.manualCodeOverride = true;
 						}
 
-						IRCConnection.SendMessage($"Module {moduleName} manual code changed to: {(string.IsNullOrEmpty(module.manualCode) ? module.moduleDisplayName : module.manualCode)}", user, !isWhisper);
+						IRCConnection.SendMessage($"モジュール{moduleName}のマニュアルは次に書き換わりました: {(string.IsNullOrEmpty(module.manualCode) ? module.moduleDisplayName : module.manualCode)}", user, !isWhisper);
 						break;
 					case "points":
 					case "score":
@@ -483,7 +483,7 @@ static class GlobalCommands
 							fileModule.scoreString = changeTo;
 							module.scoreString = changeTo;
 							module.scoreStringOverride = true;
-							IRCConnection.SendMessage($"Module {moduleName} score string changed to: {module.scoreString}", user, !isWhisper);
+							IRCConnection.SendMessage($"モジュール{moduleName}のスコアは次に書き換わりました: {module.scoreString}", user, !isWhisper);
 						}
 						break;
 					case "statuslight":
@@ -517,7 +517,7 @@ static class GlobalCommands
 								module.statusLightPosition = StatusLightPosition.Default;
 								break;
 						}
-						IRCConnection.SendMessage($"Module {moduleName} status light position changed to: {module.statusLightPosition}", user, !isWhisper);
+						IRCConnection.SendMessage($"モジュール{moduleName}のステータスライトの位置は次に書き換わりました: {module.statusLightPosition}", user, !isWhisper);
 						break;
 					case "module pin allowed":
 					case "camera pin allowed":
@@ -530,7 +530,7 @@ static class GlobalCommands
 					case "pinallowed":
 					case "pin allowed":
 						module.CameraPinningAlwaysAllowed = changeTo.ContainsIgnoreCase("true") || changeTo.ContainsIgnoreCase("yes");
-						IRCConnection.SendMessage($"Module {moduleName} Module pinning always allowed changed to: {(modules[0].CameraPinningAlwaysAllowed ? "Yes" : "No")}", user, !isWhisper);
+						IRCConnection.SendMessage($"モジュール{moduleName}のカメラ固定が次に変更されました: {(modules[0].CameraPinningAlwaysAllowed ? "常に許可" : "通常禁止")}", user, !isWhisper);
 						break;
 					case "color":
 					case "colour":
@@ -553,18 +553,18 @@ static class GlobalCommands
 							module.unclaimedColor = defaultModule.unclaimedColor;
 						}
 
-						IRCConnection.SendMessage($"Module {moduleName} Unclaimed color changed to: {moduleColor}", user, !isWhisper);
+						IRCConnection.SendMessage($"モジュール{moduleName}の非割り当て時の色が次に変化しました: {moduleColor}", user, !isWhisper);
 						break;
 					case "announcemodule":
 					case "announce module":
 					case "announce":
 					case "announcement":
 						module.announceModule = changeTo.ContainsIgnoreCase("true") || changeTo.ContainsIgnoreCase("yes");
-						IRCConnection.SendMessage($"Module {moduleName} announce on bomb start changed to: {(modules[0].announceModule ? "Yes" : "No")}", user, !isWhisper);
+						IRCConnection.SendMessage($"モジュール{moduleName}の爆弾開始時のアナウンスを次に変更しました: {(modules[0].announceModule ? "する" : "しない")}", user, !isWhisper);
 						break;
 					case "unclaimable":
 						module.unclaimable = changeTo.ContainsIgnoreCase("true") || changeTo.ContainsIgnoreCase("yes");
-						IRCConnection.SendMessage($"Module {moduleName} unclaimable changed to: {(modules[0].unclaimable ? "Yes" : "No")}", user, !isWhisper);
+						IRCConnection.SendMessage($"モジュール{moduleName}の割り当て禁止は次に書き換わりました: {(modules[0].unclaimable ? "禁止" : "許可")}", user, !isWhisper);
 						break;
 				}
 				ModuleData.DataHasChanged = true;
@@ -669,7 +669,7 @@ static class GlobalCommands
 	{
 		Leaderboard.Instance.MakeGood(targetUser);
 		if (TwitchPlaySettings.data.AutoSetVSModeTeams) TwitchGame.Instance.GoodPlayers.Add(targetUser);
-		IRCConnection.SendMessage($"@{targetUser} added to the Good Team.");
+		IRCConnection.SendMessage($"@{targetUser}が紅組に割り当てられました。");
 	}
 
 	/// <name>Add Evil Player</name>
@@ -681,7 +681,7 @@ static class GlobalCommands
 	{
 		Leaderboard.Instance.MakeEvil(targetUser);
 		if (TwitchPlaySettings.data.AutoSetVSModeTeams) TwitchGame.Instance.EvilPlayers.Add(targetUser);
-		IRCConnection.SendMessage($"@{targetUser} added to the Evil Team.");
+		IRCConnection.SendMessage($"@{targetUser}が白組に割り当てられました。");
 	}
 
 	/// <name>Join Versus</name>
@@ -694,23 +694,23 @@ static class GlobalCommands
 
 		if (!OtherModes.VSModeOn)
 		{
-			IRCConnection.SendMessage($"Sorry @{user}, VSMode is inactive.");
+			IRCConnection.SendMessage($"@{user} - VSモードは有効ではありません。");
 			return;
 		}
 		if (!TwitchPlaySettings.data.AutoSetVSModeTeams)
 		{
-			IRCConnection.SendMessage($"@{user}, teams are being manually set. Please specify a team.");
+			IRCConnection.SendMessage($"@{user} - チームは手動で割り当てられます。チームを指定してください。");
 			return;
 		}
 		if (TwitchGame.Instance.VSModePlayers.Values.Contains(user))
 		{
-			IRCConnection.SendMessage($@"{user}, you have already been added to the next VSMode bomb.");
+			IRCConnection.SendMessage($@"{user} - すでに次のVSモードに参加予定です。");
 			return;
 		}
 		if (TwitchGame.Instance.GoodPlayers.Contains(user) || TwitchGame.Instance.EvilPlayers.Contains(user))
 		{
-			string team = TwitchGame.Instance.GoodPlayers.Contains(user) ? "good" : "evil";
-			IRCConnection.SendMessage($@"{user}, you are already on the {team} team.");
+			string team = TwitchGame.Instance.GoodPlayers.Contains(user) ? "紅組" : "白組";
+			IRCConnection.SendMessage($@"{user} - すでに{team}に割り当てられています。");
 			return;
 		}
 		if (_inGame && !TwitchPlaySettings.data.VSModePlayerLockout)
@@ -721,7 +721,7 @@ static class GlobalCommands
 
 		var trueRank = Leaderboard.Instance.GetTrueRank(user);
 		TwitchGame.Instance.VSModePlayers.Add(trueRank, user);
-		IRCConnection.SendMessage($"{(_inGame ? "Sorry " : "")}@{user}, {(_inGame ? "the bomb has already started. Y" : "y")}ou have been added to the next VSMode bomb.");
+		IRCConnection.SendMessage($"@{user}　- {(_inGame ? "爆弾はすでに起動しています。" : "")}次の爆弾に参加予定となりました。");
 	}
 
 	/// <name>Clear Versus Players</name>
@@ -732,7 +732,7 @@ static class GlobalCommands
 	public static void ClearVSPlayers()
 	{
 		TwitchGame.Instance.VSModePlayers.Clear();
-		IRCConnection.SendMessage("VSMode Players have been cleared.");
+		IRCConnection.SendMessage("VSモードのプレイヤーがリセットされました。");
 	}
 
 	/// <name>Versus Players</name>
@@ -743,17 +743,17 @@ static class GlobalCommands
 	{
 		if (!TwitchPlaySettings.data.AutoSetVSModeTeams)
 		{
-			IRCConnection.SendMessage("You cannot use this command in this mode.");
+			IRCConnection.SendMessage("現在のモードではこのコマンドを利用できません。");
 			return;
 		}
 		else if (!TwitchGame.Instance.VSSetFlag || TwitchGame.Instance.GoodPlayers.Count == 0 || TwitchGame.Instance.EvilPlayers.Count == 0)
 		{
 			var _vsCount = TwitchGame.Instance.VSModePlayers.Count;
-			if (_vsCount < 2) IRCConnection.SendMessage($"Currently {_vsCount} players, not enough to play!");
+			if (_vsCount < 2) IRCConnection.SendMessage($"開始するための十分なプレイヤーがいません。(現在{_vsCount}人)");
 			else
 			{
 				string _vsPlayers = string.Join(", @", TwitchGame.Instance.VSModePlayers.Values.ToArray());
-				IRCConnection.SendMessage($"{_vsCount} players joined for VSMode, they are: {_vsPlayers}");
+				IRCConnection.SendMessage($"{_vsCount}人がVSモードに参加予定です。プレイヤーリスト: {_vsPlayers}");
 			}
 			return;
 		}
@@ -762,21 +762,31 @@ static class GlobalCommands
 		var _eCount = TwitchGame.Instance.EvilPlayers.Count;
 		string _gPlayers = string.Join(", @", TwitchGame.Instance.GoodPlayers.ToArray());
 		string _ePlayers = string.Join(", @", TwitchGame.Instance.EvilPlayers.ToArray());
-		IRCConnection.SendMessage($"{_gCount} Good players joined, they are: @{_gPlayers}");
-		IRCConnection.SendMessage($"{_eCount} Evil players joined, they are: @{_ePlayers}");
+		IRCConnection.SendMessage($"{_gCount}人が紅組に参加予定です。プレイヤーリスト: @{_gPlayers}");
+		IRCConnection.SendMessage($"{_eCount}人が白組に参加予定です。プレイヤーリスト: @{_ePlayers}");
 	}
 
 	/// <name>Join Team</name>
 	/// <syntax>join [team]</syntax>
 	/// <summary>Joins either the good or evil team for versus mode.</summary>
-	[Command(@"join (evil|good)")]
+	[Command(@"join (evil|good|red|white|紅組|白組)")]
 	public static void JoinWantedTeam([Group(1)] string team, string user, bool isWhisper)
 	{
-		OtherModes.Team target = (OtherModes.Team) Enum.Parse(typeof(OtherModes.Team), team, true);
+		OtherModes.Team target;
+		switch(team) {
+			case "evil":
+			case "白組":
+			case "white":
+				target = OtherModes.Team.Evil;
+				break;
+			default:
+				target = OtherModes.Team.Good;
+				break;
+		}
 		Leaderboard.Instance.GetRank(user, out Leaderboard.LeaderboardEntry entry);
 		if (TwitchPlaySettings.data.AutoSetVSModeTeams)
 		{
-			IRCConnection.SendMessage($"@{user}, teams are being automatically set. Please use !join to join a team.");
+			IRCConnection.SendMessage($"@{user} - チームは自動的に割り当てられます。!joinコマンドで参加してください。");
 			return;
 		}
 		// ReSharper disable once SwitchStatementMissingSomeCases
@@ -785,36 +795,36 @@ static class GlobalCommands
 			case OtherModes.Team.Good:
 				if (entry != null && entry.Team == OtherModes.Team.Good)
 				{
-					IRCConnection.SendMessage($"@{user}, You are already on the Good team", user, !isWhisper);
+					IRCConnection.SendMessage($"@{user} - すでに紅組に参加予定です。", user, !isWhisper);
 					return;
 				}
 
 				if (!Leaderboard.Instance.IsTeamBalanced(OtherModes.Team.Good))
 				{
 					IRCConnection.SendMessage(
-						$"@{user}, you cannot join the Good team at the moment, since there are too many players on the Good team. Please try again later{(entry.Team != OtherModes.Team.Evil ? ", or join the Evil team" : "")}.",
+						$"@{user} - 紅組の人数が多すぎるので紅組に参加できません。後でもう一度試してみ{(entry.Team != OtherModes.Team.Evil ? "るか、白組に参加し" : "")}てください。",
 						user, !isWhisper);
 					return;
 				}
 				Leaderboard.Instance.MakeGood(user);
-				IRCConnection.SendMessage($"@{user} joined the Good team", user, !isWhisper);
+				IRCConnection.SendMessage($"@{user}が紅組に参加しました。", user, !isWhisper);
 				break;
 			case OtherModes.Team.Evil:
 				if (entry != null && entry.Team == OtherModes.Team.Evil)
 				{
-					IRCConnection.SendMessage($"@{user}, You are already on the Evil team", user, !isWhisper);
+					IRCConnection.SendMessage($"@{user} - すでに白組に参加予定です。", user, !isWhisper);
 					return;
 				}
 
 				if (!Leaderboard.Instance.IsTeamBalanced(OtherModes.Team.Evil))
 				{
 					IRCConnection.SendMessage(
-						$"@{user}, you cannot join the Evil team at the moment, since there are too many players on the Evil team. Please try again later{(entry.Team != OtherModes.Team.Evil ? ", or join the Good team" : "")}.",
+						$"@{user} - 白組の人数が多すぎるので白組に参加できません。後でもう一度試してみ{(entry.Team != OtherModes.Team.Evil ? "るか、紅組に参加し" : "")}てください。",
 						user, !isWhisper);
 					return;
 				}
 				Leaderboard.Instance.MakeEvil(user);
-				IRCConnection.SendMessage($"@{user} joined the Evil team", user, !isWhisper);
+				IRCConnection.SendMessage($"@{user}が白組に参加しました。", user, !isWhisper);
 				break;
 		}
 	}
@@ -920,7 +930,7 @@ static class GlobalCommands
 	public static void GetAccess([Group(2)] string targetUsers, string user, bool isWhisper)
 	{
 		foreach (string person in targetUsers.Split(new[] { ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries))
-			IRCConnection.SendMessage(string.Format("User {0} access level: {1}", person, UserAccess.LevelToString(UserAccess.HighestAccessLevel(person))), user, !isWhisper);
+			IRCConnection.SendMessage(string.Format("ユーザー{0}のアクセスレベル: {1}", person, UserAccess.LevelToString(UserAccess.HighestAccessLevel(person))), user, !isWhisper);
 	}
 
 	/// <name>Run Help</name>
@@ -931,8 +941,8 @@ static class GlobalCommands
 	{
 		string[] validDistributions = TwitchPlaySettings.data.ModDistributionSettings.Where(x => x.Value.Enabled && !x.Value.Hidden).Select(x => x.Key).ToArray();
 		IRCConnection.SendMessage(validDistributions.Length > 0
-			? $"Usage: !run <module_count> <distribution>. Valid distributions are {validDistributions.Join(", ")}"
-			: "Sorry, !run has been disabled.");
+			? $"使用方法: !run <モジュール数> <分配> | 有効な分配: {validDistributions.Join(", ")}"
+			: "!runは無効化されています。");
 	}
 
 	/// <name>Run VS</name>
@@ -946,7 +956,7 @@ static class GlobalCommands
 	{
 		if (!TwitchPlaySettings.data.ModDistributionSettings.TryGetValue(distributionName, out var distribution))
 		{
-			IRCConnection.SendMessage($"Sorry, there is no distribution called \"{distributionName}\".");
+			IRCConnection.SendMessage($"{distributionName}という分配は存在しません。");
 			return null;
 		}
 		if (TwitchPlaySettings.data.AutoSetVSModeTeams)
@@ -1042,7 +1052,7 @@ static class GlobalCommands
 	{
 		if (!TwitchPlaySettings.data.ModDistributionSettings.TryGetValue(distributionName, out var distribution))
 		{
-			IRCConnection.SendMessage($"Sorry, there is no distribution called \"{distributionName}\".");
+			IRCConnection.SendMessage($"{distributionName}という分配は存在しません。");
 			return null;
 		}
 
@@ -1102,7 +1112,7 @@ static class GlobalCommands
 	/// <summary>Gives you help on the profile commands.</summary>
 	[Command(@"profiles? help")]
 	public static void ProfileHelp(string user, bool isWhisper) =>
-		IRCConnection.SendMessage("Enable a profile using: !profile enable <name>. Disable a profile: !profile disable <name>. List the enabled profiles: !profile enabled. List all profiles: !profile list.", user, !isWhisper);
+		IRCConnection.SendMessage("!profile enable <名前> [プロファイルを有効化する] | !profile disable <名前> [プロファイルを無効化する] | !profile enabled [有効なプロファイル一覧] | !profile list [プロファイル一覧] ", user, !isWhisper);
 
 	/// <name>Profile Enable</name>
 	/// <syntax>profile enable [name]</syntax>
@@ -1111,7 +1121,7 @@ static class GlobalCommands
 	public static void ProfileEnable([Group(1)] string profileName, string user, bool isWhisper) => ProfileWrapper(profileName, user, isWhisper, (filename, profileString) =>
 	{
 		IRCConnection.SendMessage(ProfileHelper.Add(filename) ?
-			$"Enabled profile: {profileString}." :
+			$"次のプロファイルが有効化されました: {profileString}." :
 			string.Format(TwitchPlaySettings.data.ProfileActionUseless, profileString, "enabled"), user, !isWhisper);
 	});
 
@@ -1122,7 +1132,7 @@ static class GlobalCommands
 	public static void ProfileDisable([Group(1)] string profileName, string user, bool isWhisper) => ProfileWrapper(profileName, user, isWhisper, (filename, profileString) =>
 	{
 		IRCConnection.SendMessage(ProfileHelper.Remove(filename) ?
-			$"Disabled profile: {profileString}." :
+			$"次のプロファイルが無効化されました: {profileString}." :
 			string.Format(TwitchPlaySettings.data.ProfileActionUseless, profileString, "disabled"), user, !isWhisper);
 	});
 
@@ -1161,8 +1171,8 @@ static class GlobalCommands
 		var cleanProfileName = Path.GetFileNameWithoutExtension(profilePath).Replace('_', ' ');
 		var success = ProfileHelper.SetState(profilePath, moduleInfo.moduleID, !adding);
 		IRCConnection.SendMessage(success ?
-			$"\"{moduleInfo.moduleDisplayName}\" {(adding ? "added to" : "removed from")} \"{cleanProfileName}\"." :
-			$"\"{moduleInfo.moduleDisplayName}\" is already {(adding ? "added to" : "removed from")} \"{cleanProfileName}\".",
+			$"{moduleInfo.moduleTranslatedName ?? moduleInfo.moduleDisplayName}が{cleanProfileName}{(adding ? "に追加" : "から消去")}されました。" :
+			$"{moduleInfo.moduleTranslatedName ?? moduleInfo.moduleDisplayName}はすでに{cleanProfileName}に存在{(adding ? "します" : "していません")}。",
 			user, !isWhisper
 		);
 	}
@@ -1176,7 +1186,7 @@ static class GlobalCommands
 		var moduleIDs = ComponentSolverFactory.GetModuleInformation().Select(modInfo => modInfo.moduleID);
 		var profilePath = Path.Combine(ProfileHelper.ProfileFolder, filename + ".json");
 		var modules = ProfileHelper.GetProfile(profilePath).DisabledList.Where(modID => moduleIDs.Contains(modID));
-		IRCConnection.SendMessage($"Modules disabled by {profileString}: {modules.Join(", ")}");
+		IRCConnection.SendMessage($"{profileString}によって無効化されているモジュール: {modules.Join(", ")}");
 	});
 
 	/// <name>Holdables</name>
@@ -1343,9 +1353,8 @@ static class GlobalCommands
 	[Command("(?:checkforupdates?|cfu)", AccessLevel.SuperUser, AccessLevel.SuperUser)]
 	public static IEnumerator CheckForUpdates()
 	{
-		yield return Updater.CheckForUpdates();
-
-		IRCConnection.SendMessage(Updater.UpdateAvailable ? "There is a new update to Twitch Plays!" : "Twitch Plays is up-to-date.");
+		yield return null;
+		IRCConnection.SendMessage("自動アップデートは無効化されています。");
 	}
 
 	/// <name>Update</name>
@@ -1501,7 +1510,7 @@ static class GlobalCommands
 			OtherModes.Toggle(mode);
 		else
 			OtherModes.Set(mode, on);
-		IRCConnection.SendMessage($"{OtherModes.GetName(OtherModes.nextMode)} mode will be enabled next round.", user, !isWhisper);
+		IRCConnection.SendMessage($"次のゲームは{OtherModes.GetName(OtherModes.nextMode)}モードになります。", user, !isWhisper);
 	}
 
 	private static void ShowRank(Leaderboard.LeaderboardEntry entry, string targetUser, string user, bool isWhisper, bool numeric = false) => ShowRank(entry == null ? null : new[] { entry }, targetUser, user, isWhisper, numeric);
@@ -1632,13 +1641,13 @@ static class GlobalCommands
 	{
 		if (!distribution.Enabled && !UserAccess.HasAccess(user, AccessLevel.Mod, true) && !TwitchPlaySettings.data.AnarchyMode)
 		{
-			IRCConnection.SendMessage($"Sorry, distribution \"{distribution.DisplayName}\" is disabled");
+			IRCConnection.SendMessage($"分配{distribution.DisplayName}は無効化されています。");
 			return null;
 		}
 
 		if (modules < distribution.MinModules)
 		{
-			IRCConnection.SendMessage($"Sorry, the minimum number of modules for \"{distribution.DisplayName}\" is {distribution.MinModules}.");
+			IRCConnection.SendMessage($"分配{distribution.DisplayName}の最小のモジュール数は{distribution.MinModules}です。");
 			return null;
 		}
 
@@ -1646,9 +1655,9 @@ static class GlobalCommands
 		if (modules > maxModules)
 		{
 			if (modules > distribution.MaxModules)
-				IRCConnection.SendMessage($"Sorry, the maximum number of modules for {distribution.DisplayName} is {distribution.MaxModules}.");
+				IRCConnection.SendMessage($"分配{distribution.DisplayName}の最大のモジュール数は{distribution.MaxModules}です。");
 			else
-				IRCConnection.SendMessage($"Sorry, the maximum number of modules is \"{maxModules}\".");
+				IRCConnection.SendMessage($"最大のモジュール数は{maxModules}\"です。");
 			return null;
 		}
 
