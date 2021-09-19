@@ -276,9 +276,9 @@ public class TwitchPlaysService : MonoBehaviour
 					initialLoad = true;
 					_coroutinesToStart.Enqueue(ComponentSolverFactory.LoadDefaultInformation(true));
 					_coroutinesToStart.Enqueue(Repository.LoadData());
+					_coroutinesToStart.Enqueue(TranslationInfo.TranslateComponents());
 					if (TwitchPlaySettings.data.TestModuleCompatibility && !TwitchPlaySettings.data.TwitchPlaysDebugEnabled)
 						_coroutinesToStart.Enqueue(CheckSupport.FindSupportedModules());
-					TranslationInfo.TranslateComponents(Repository.Modules);
 				}
 
 				// Clear out the retry reward if we return to the setup room since the retry button doesn't return to setup.

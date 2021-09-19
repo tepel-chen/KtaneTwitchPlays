@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
+using System.Collections;
 using System.Linq;
 using System.Text.RegularExpressions;
 using static Repository;
@@ -9,12 +8,14 @@ namespace TwitchPlaysAssembly.Src.Helpers
 {
 	class TranslationInfo
 	{
-		public static void TranslateComponents(List<KtaneModule> modules)
+		public static IEnumerator TranslateComponents()
 		{
+			yield return LoadData();
+
 			DebugHelper.Log("Start translation");
 			var reManual = new Regex(@"^ translated \(日本語 — ([^)]+)\)( \([^)]+\))?");
 			var modInfos = ComponentSolverFactory.GetModuleInformation().ToList();
-			var validModules = modules.Where(module =>
+			var validModules = Modules.Where(module =>
 			{
 				if (module.SteamID == null || module.Type == "Widget" || module.Sheets == null)
 					return false;
@@ -22,6 +23,7 @@ namespace TwitchPlaysAssembly.Src.Helpers
 				var current = modInfos.Find(modInfo => modInfo.moduleID == module.ModuleID);
 				return current == null || current.moduleTranslatedName == null || current.moduleTranslatedName.Length == 0;
 			}).ToArray();
+
 
 			foreach (var module in validModules)
 			{
