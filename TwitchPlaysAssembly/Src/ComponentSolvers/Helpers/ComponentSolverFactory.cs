@@ -213,6 +213,13 @@ public static class ComponentSolverFactory
 		// Anti-troll shims - These are specifically meant to allow the troll commands to be disabled.
 		ModComponentSolverCreators["MazeV2"] = module => new AntiTrollShim(module, new Dictionary<string, string> { { "spinme", "Sorry, I am not going to waste time spinning every single pipe 360 degrees." } });
 
+		// Translation shims
+		ModComponentSolverCreators["TheUltracubeModule"] = module => new TheUltracubeTranslationShim(module);
+		ModComponentSolverCreators["TheHypercubeModule"] = module => new TheUltracubeTranslationShim(module);
+		ModComponentSolverCreators["MemoryV2"] = module => new ForgetMeNotTranslationShim(module);
+		ModComponentSolverCreators["deafAlleyModule"] = module => new TranslationShim(module, null, TranslationShim.Build().Add("Stopped focusing on feeling due to a request to cancel!", "キャンセルされたため、フォーカスを終了しました!"))
+
+
 		//Module Information
 		//Information declared here will be used to generate ModuleInformation.json if it doesn't already exist, and will be overwritten by ModuleInformation.json if it does exist.
 		/*

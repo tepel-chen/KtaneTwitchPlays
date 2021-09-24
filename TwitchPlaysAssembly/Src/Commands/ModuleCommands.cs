@@ -108,7 +108,7 @@ static class ModuleCommands
 			// Unsupported modules can always be auto-solved
 			(module.Unsupported || module.Solver.GetType() == typeof(UnsupportedModComponentSolver))
 		)
-			module.Solver.SolveModule($"A module ({module.Solver.ModInfo.moduleTranslatedName ?? module.HeaderText}) is being automatically solved.");
+			module.Solver.SolveModule($"モジュール ({module.Solver.ModInfo.moduleTranslatedName ?? module.HeaderText})は自動的に解除されます。");
 	}
 
 	/// <name>Votesolve</name>
