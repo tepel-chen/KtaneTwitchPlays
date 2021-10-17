@@ -330,7 +330,7 @@ static class GameCommands
 		{
 			if (!TwitchGame.Instance.FindClaimEnabled && !OtherModes.TrainingModeOn)
 			{
-				IRCConnection.SendMessageFormat("@{0}, the findclaim command may only be used after {1} seconds have passed.", user, TwitchPlaySettings.data.FindClaimDelay); // Prevents findclaim spam at the start of a bomb
+				IRCConnection.SendMessageFormat("@{0} - findclaimコマンドは爆弾開始から{1}秒間は利用できません。", user, TwitchPlaySettings.data.FindClaimDelay); // Prevents findclaim spam at the start of a bomb
 				return;
 			}
 			if (!TwitchGame.Instance.FindClaimPlayers.ContainsKey(user)) TwitchGame.Instance.FindClaimPlayers.Add(user, 0);
