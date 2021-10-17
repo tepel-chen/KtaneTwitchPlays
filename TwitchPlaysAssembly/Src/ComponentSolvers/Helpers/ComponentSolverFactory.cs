@@ -217,7 +217,8 @@ public static class ComponentSolverFactory
 		ModComponentSolverCreators["TheUltracubeModule"] = module => new TheUltracubeTranslationShim(module);
 		ModComponentSolverCreators["TheHypercubeModule"] = module => new TheUltracubeTranslationShim(module);
 		ModComponentSolverCreators["MemoryV2"] = module => new ForgetMeNotTranslationShim(module);
-		ModComponentSolverCreators["deafAlleyModule"] = module => new TranslationShim(module, null, TranslationShim.Build().Add("Stopped focusing on feeling due to a request to cancel!", "キャンセルされたため、フォーカスを終了しました!"))
+		ModComponentSolverCreators["forgetItNot"] = module => new ForgetItNotTranslationShim(module);
+		ModComponentSolverCreators["deafAlleyModule"] = module => new TranslationShim(module, null, TranslationShim.Build().Add("Stopped focusing on feeling due to a request to cancel!", "キャンセルされたため、フォーカスを終了しました!"));
 
 
 		//Module Information
@@ -1170,13 +1171,13 @@ public static class ComponentSolverFactory
 			info.helpText = defInfo.helpText;
 		}
 
-		if (!info.scoreStringOverride)
+		if (!info.scoreStringOverride && !string.IsNullOrEmpty(defInfo.scoreString))
 		{
 			ModuleData.DataHasChanged |= !info.scoreString.Equals(defInfo.scoreString);
 			info.scoreString = defInfo.scoreString;
 		}
 
-		if (!info.manualCodeOverride)
+		if (!info.manualCodeOverride && !string.IsNullOrEmpty(defInfo.manualCode))
 		{
 			ModuleData.DataHasChanged |= !info.manualCode.TryEquals(defInfo.manualCode);
 			info.manualCode = defInfo.manualCode;
@@ -1193,12 +1194,12 @@ public static class ComponentSolverFactory
 		ModuleInformation info = GetModuleInfo(moduleType, false);
 		ModuleInformation defInfo = GetDefaultInformation(moduleType);
 
-		if (!info.helpTextOverride)
+		if (!info.helpTextOverride && !string.IsNullOrEmpty(helpText))
 		{
 			ModuleData.DataHasChanged |= !info.helpText.TryEquals(helpText);
 			info.helpText = helpText;
 		}
-		if (!info.manualCodeOverride)
+		if (!info.manualCodeOverride && !string.IsNullOrEmpty(manualCode))
 		{
 			ModuleData.DataHasChanged |= !info.manualCode.TryEquals(manualCode);
 			info.manualCode = manualCode;

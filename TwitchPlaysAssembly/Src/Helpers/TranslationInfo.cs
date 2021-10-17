@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Linq;
 using System.Text.RegularExpressions;
+using UnityEngine;
 using static Repository;
 
 namespace TwitchPlaysAssembly.Src.Helpers
@@ -35,12 +36,13 @@ namespace TwitchPlaysAssembly.Src.Helpers
 				{
 					modInfo.manualCodeOverride = true;
 					modInfo.manualCode = $"https://ktane.timwi.de/HTML/{Uri.EscapeDataString(module.Name + match.Groups[0].Value)}.html";
-
+					ModuleData.DataHasChanged = true;
 				}
-				modInfo.moduleTranslatedName = match.Groups[1].Value;
-				ModuleData.DataHasChanged = true;
+				if(modInfo.moduleTranslatedName != match.Groups[1].Value) {
+					modInfo.moduleTranslatedName = match.Groups[1].Value;
+					ModuleData.DataHasChanged = true;
+				}
 			}
-
 			ModuleData.WriteDataToFile();
 		}
 	}

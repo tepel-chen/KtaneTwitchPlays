@@ -1028,7 +1028,7 @@ public abstract class ComponentSolver
 	private void AwardStrikes(string userNickName, int strikeCount)
 	{
 		List<string> messageParts = new List<string>();
-		string headerText = UnsupportedModule ? ModInfo.moduleTranslatedName ?? ModInfo.moduleDisplayName : Module.BombComponent.GetModuleDisplayName();
+		string headerText = ModInfo.moduleTranslatedName ?? (UnsupportedModule ? ModInfo.moduleDisplayName : Module.BombComponent.GetModuleDisplayName());
 		int strikePenalty = -TwitchPlaySettings.data.StrikePenalty * (TwitchPlaySettings.data.EnableRewardMultipleStrikes ? strikeCount : 1);
 		strikePenalty = (strikePenalty * OtherModes.ScoreMultiplier).RoundToInt();
 		bool VSAffect = OtherModes.VSModeOn && !string.IsNullOrEmpty(userNickName);
