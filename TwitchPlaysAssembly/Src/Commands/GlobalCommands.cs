@@ -1229,8 +1229,7 @@ static class GlobalCommands
 
 		TwitchPlaySettings.LoadDataFromFile();
 		UserAccess.LoadAccessList();
-		yield return ComponentSolverFactory.LoadDefaultInformation();
-		ModuleData.LoadDataFromFile();
+		yield return ComponentSolverFactory.LoadDefaultInformation(true);
 
 		if (streamer)
 			UserAccess.AddUser(user, AccessLevel.Streamer);
@@ -1240,6 +1239,19 @@ static class GlobalCommands
 		IRCConnectionManagerHoldable.TwitchPlaysDataRefreshed = true;
 		IRCConnection.SendMessage("Data reloaded", user, !isWhisper);
 	}
+
+	/// <name>Reload Score Info</name>
+	/// <syntax>reloadscoreinfo</syntax>
+	/// <summary>Reloads the scoring info of all modules.</summary>
+	/// <restriction>ScoringManager</restriction>
+	[Command("reloadscoreinfo", AccessLevel.ScoringManager, AccessLevel.ScoringManager)]
+	public static IEnumerator ReloadScoreInfo(string user, bool isWhisper)
+	{
+		yield return ComponentSolverFactory.LoadDefaultInformation(true);
+
+		IRCConnection.SendMessage("Score info reloaded", user, !isWhisper);
+	}
+
 
 	/// <name>Silence Mode</name>
 	/// <syntax>silencemode</syntax>
@@ -1308,17 +1320,21 @@ static class GlobalCommands
 
 	/// <name>Restart</name>
 	/// <syntax>restart</syntax>
-	/// <summary>Restarts the game by closing and reopening it. May not work perfectly when running with Steam.</summary>
+	/// <summary>Restarts the game by closing and reopening it.</summary>
 	/// <restriction>SuperUser</restriction>
 	[Command("(?:restart|reboot)(?:game)?", AccessLevel.SuperUser, AccessLevel.SuperUser)]
 	public static void RestartGame()
 	{
-		// WARNING: This code is a bit hacky, make sure to test this with and without the game running in Steam if you modify it.
-
-		if (SteamManager.Initialized) // If the game was launched through Steam, we have to relaunch it through Steam.
+		if (SteamManager.Initialized) // If the game was launched through Steam, we have to relaunch it with Steam services.
 		{
-			Process.Start("steam://rungameid/341800");
-			Process.GetCurrentProcess().Kill(); // HACK: Steam doesn't like two instances of the game running but using Kill() seems to be fast enough that Steam doesn't notice.
+			// Creating this file will allow the game to use Steam services.
+			// This file cannot be deleted until the game tries to initialize Steam.
+			// Since that can't be determined from the outside, TwitchPlaysService will delete it after Steam initializes.
+			File.WriteAllText("steam_appid.txt", "341800");
+
+			Process.Start(Process.GetCurrentProcess().MainModule.FileName, Environment.GetCommandLineArgs().Skip(1).Join());
+
+			Application.Quit();
 		}
 		else
 		{

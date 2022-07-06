@@ -14,9 +14,9 @@ public enum VoteTypes
 public class VoteData
 {
 	// Name of the vote (Displayed over !notes3 when in game)
-	internal string name
+	internal string Name
 	{
-		get => Votes.CurrentVoteType == VoteTypes.Solve ? $"モジュール{Votes.voteModule.Code} ({Votes.voteModule.Solver.ModInfo.moduleTranslatedName ?? Votes.voteModule.HeaderText})の自動解除" : _name;
+		get => Votes.CurrentVoteType == VoteTypes.Solve ? $"Solve module {Votes.voteModule.Code} ({Votes.voteModule.HeaderText})" : _name;
 		set => _name = value;
 	}
 
@@ -44,21 +44,21 @@ public static class Votes
 	{
 		{
 			VoteTypes.Detonation, new VoteData {
-				name = "爆弾の起爆",
+				Name = "Detonate the bomb",
 				validityChecks = new List<Tuple<Func<bool>, string>>
 				{
-					createCheck(() => TwitchGame.Instance.VoteDetonateAttempted, "@{0} - 投票による起爆はこのゲームで一度拒否されています。再び爆弾の起爆の投票を開始することはできません。")
+					CreateCheck(() => TwitchGame.Instance.VoteDetonateAttempted, "Sorry, {0}, a detonation vote was already attempted on this bomb. Another one cannot be started.")
 				},
 				onSuccess = () => TwitchGame.Instance.Bombs[0].CauseExplosionByVote()
 			}
 		},
 		{
 			VoteTypes.VSModeToggle, new VoteData {
-				name = "VSモードの開始",
+				Name = "Toggle VS mode",
 				validityChecks = null,
 				onSuccess = () => {
 					OtherModes.Toggle(TwitchPlaysMode.VS);
-					IRCConnection.SendMessage($"次のゲームは{OtherModes.GetName(OtherModes.nextMode)}モードになります。");
+					IRCConnection.SendMessage($"{OtherModes.GetName(OtherModes.nextMode)} mode will be enabled next round.");
 				}
 			}
 		},
@@ -66,31 +66,33 @@ public static class Votes
 			VoteTypes.Solve, new VoteData {
 				validityChecks = new List<Tuple<Func<bool>, string>>
 				{
-					createCheck(() => !TwitchPlaySettings.data.EnableVoteSolve, "@{0} - 投票による自動解除は無効化されています。"),
-					createCheck(() => voteModule.Solver.AttemptedForcedSolve, "@{0} - そのモジュールはすでに投票により自動解除されました。"),
-					createCheck(() => OtherModes.currentMode == TwitchPlaysMode.VS, "@{0} - 投票による自動解除はVSモードでは無効化されています。"),
-					createCheck(() => TwitchGame.Instance.VoteSolveCount >= 2, "@{0} - すでに2回の投票による自動解除が行われました。これ以上投票による自動解除を開始することはできません。"),
-					createCheck(() =>
+					CreateCheck(() => !TwitchPlaySettings.data.EnableVoteSolve, "Sorry, {0}, votesolving is disabled."),
+					CreateCheck(() => voteModule.Votesolving, "Sorry, {0}, that module is already being votesolved."),
+					CreateCheck(() => OtherModes.currentMode == TwitchPlaysMode.VS, "Sorry, {0}, votesolving is disabled during vsmode bombs."),
+					CreateCheck(() => TwitchGame.Instance.VoteSolveCount >= 2, "Sorry, {0}, two votesolves have already been used. Another one cannot be started."),
+					CreateCheck(() =>
 						voteModule.BombComponent.GetModuleID().IsBossMod() &&
 						((double)TwitchGame.Instance.CurrentBomb.BombSolvedModules / TwitchGame.Instance.CurrentBomb.BombSolvableModules >= .10f ||
 						TwitchGame.Instance.CurrentBomb.BombStartingTimer - TwitchGame.Instance.CurrentBomb.CurrentTimer < 120),
-						"@{0} - ボスモジュールは10%未満のモジュールが解除されていて、かつ2分以上経過した後にのみ投票による自動解除が行えます。"),
-					createCheck(() =>
+						"Sorry, {0}, boss mods may only be votesolved before 10% of all modules are solved and when at least 2 minutes of the bomb has passed."),
+					CreateCheck(() =>
 						((double)TwitchGame.Instance.CurrentBomb.BombSolvedModuleIDs.Count(x => !x.IsBossMod()) /
 						TwitchGame.Instance.CurrentBomb.BombSolvableModuleIDs.Count(x => !x.IsBossMod()) <= 0.75f) &&
 						!voteModule.BombComponent.GetModuleID().IsBossMod(),
-						"@{0} - 投票による自動解除は爆弾の75%以上のモジュールが解除された場合のみ開始することができます。"),
-					createCheck(() => voteModule.Claimed, "@{0} - 投票による自動解除は割り当てが行われていないモジュールのみに行うことができます。"),
-					createCheck(() => voteModule.ClaimQueue.Count > 0, "@{0} - そのモジュールは割り当ての予約がされているため、投票による自動解除を開始することができません。"),
-					createCheck(() => (int)voteModule.ScoreMethods.Sum(x => x.CalculateScore(null)) <= 8 && !voteModule.BombComponent.GetModuleID().IsBossMod(), "@{0} - 投票による自動解除は点数が8以上のモジュールのみに行うことができます。"),
-					createCheck(() => TwitchGame.Instance.CommandQueue.Any(x => x.Message.Text.StartsWith($"!{voteModule.Code} ")), "@{0} - そのモジュールのコマンドがキューされているため、投票による自動解除を開始することができません。"),
-					createCheck(() => GameplayState.MissionToLoad != "custom", "@{0} - ミッション中には投票による自動解除を開始することができません。")
+						"Sorry, {0}, more than 75% of all non-boss modules on the bomb must be solved in order to call a votesolve."),
+					CreateCheck(() => voteModule.Claimed, "Sorry, {0}, the module must be unclaimed for it to be votesolved."),
+					CreateCheck(() => voteModule.ClaimQueue.Count > 0, "Sorry, {0}, the module you are trying to votesolve has a queued claim on it."),
+					CreateCheck(() => (int)voteModule.ScoreMethods.Sum(x => x.CalculateScore(null)) <= 8 && !voteModule.BombComponent.GetModuleID().IsBossMod(), "Sorry, {0}, the module must have a score greater than 8."),
+					CreateCheck(() => TwitchGame.Instance.CommandQueue.Any(x => x.Message.Text.StartsWith($"!{voteModule.Code} ")), "Sorry, {0}, the module you are trying to solve is in the queue."),
+					CreateCheck(() => GameplayState.MissionToLoad != "custom", "Sorry, {0}, you can't votesolve modules while in a mission bomb.")
 				},
 				onSuccess = () =>
 				{
-					voteModule.Solver.SolveModule($"モジュール({voteModule.HeaderText})は自動的に解除されます。");
+					voteModule.Solver.SolveModule($"A module ({voteModule.HeaderText}) is being automatically solved.");
+					voteModule.SetClaimedUserMultidecker("VOTESOLVING");
+					voteModule.Votesolving = true;
 					TwitchPlaySettings.SetRewardBonus((TwitchPlaySettings.GetRewardBonus() * 0.75f).RoundToInt());
-					IRCConnection.SendMessage($"モジュール{voteModule.Code} ({voteModule.HeaderText})が投票により自動解除され、報酬が25%減少しました。");
+					IRCConnection.SendMessage($"Reward decreased by 25% for votesolving module {voteModule.Code} ({voteModule.HeaderText})");
 				}
 			}
 		}
@@ -98,13 +100,12 @@ public static class Votes
 
 	private static readonly Dictionary<string, bool> Voters = new Dictionary<string, bool>();
 
-	private static Coroutine voteInProgress = null;
+	private static Coroutine voteInProgress;
 	private static IEnumerator VotingCoroutine()
 	{
-		int oldTime;
 		while (VoteTimeRemaining >= 0f)
 		{
-			oldTime = TimeLeft;
+			var oldTime = TimeLeft;
 			VoteTimeRemaining -= Time.deltaTime;
 
 			if (TwitchGame.BombActive && TimeLeft != oldTime) // Once a second, update notes.
@@ -127,14 +128,20 @@ public static class Votes
 				}
 			}
 
-			IRCConnection.SendMessage($"割り当てが行われている{numAddedNoVotes}人が投票を行わなかったため、{numAddedNoVotes}票の反対票が追加されます。");
+			if (numAddedNoVotes == 1)
+				IRCConnection.SendMessage("1 no vote was added on the behalf of users with claims that did not vote.");
+			else if (numAddedNoVotes > 1)
+				IRCConnection.SendMessage($"{numAddedNoVotes} no votes were added on the behalf of users with claims that did not vote.");
 		}
 
 		int yesVotes = Voters.Count(pair => pair.Value);
 		bool votePassed = (yesVotes >= Voters.Count * (TwitchPlaySettings.data.MinimumYesVotes[CurrentVoteType] / 100f));
-		IRCConnection.SendMessage($"投票の結果{yesVotes}/{Voters.Count}が賛成しました。投票は{(votePassed ? "可決" : "否決")}されました。");
+		IRCConnection.SendMessage($"Voting has ended with {yesVotes}/{Voters.Count} yes votes. The vote has {(votePassed ? "passed" : "failed")}.");
 		if (!votePassed && CurrentVoteType == VoteTypes.Solve)
+		{
 			voteModule.SetBannerColor(voteModule.unclaimedBackgroundColor);
+			voteModule.SetClaimedUserMultidecker(null);
+		}
 		if (votePassed)
 		{
 			PossibleVotes[CurrentVoteType].onSuccess();
@@ -164,8 +171,11 @@ public static class Votes
 					TwitchGame.Instance.VoteDetonateAttempted = true;
 					break;
 				case VoteTypes.Solve:
+					if (voteModule is null)
+						throw new InvalidOperationException("Votemodule cannot be null");
 					TwitchGame.Instance.VoteSolveCount++;
 					voteModule.SetBannerColor(voteModule.MarkedBackgroundColor);
+					voteModule.SetClaimedUserMultidecker("VOTE IN PROGRESS");
 					break;
 			}
 		}
@@ -174,7 +184,7 @@ public static class Votes
 		VoteTimeRemaining = TwitchPlaySettings.data.VoteCountdownTime;
 		Voters.Clear();
 		Voters.Add(user, true);
-		IRCConnection.SendMessage($"{user}により\"{PossibleVotes[CurrentVoteType].name}\"の投票が開始されました! 「!vote VoteYea」か「!vote VoteNay」で投票してください。");
+		IRCConnection.SendMessage($"Voting has started by {user} to \"{PossibleVotes[CurrentVoteType].Name}\"! Vote with '!vote VoteYea ' or '!vote VoteNay '.");
 		voteInProgress = TwitchPlaysService.Instance.StartCoroutine(VotingCoroutine());
 		if (TwitchGame.Instance.alertSound != null)
 			TwitchGame.Instance.alertSound.Play();
@@ -204,36 +214,36 @@ public static class Votes
 	{
 		if (!Active)
 		{
-			IRCConnection.SendMessage($"{user} - 現在投票は行われていません。");
+			IRCConnection.SendMessage($"{user}, there is no vote currently in progress.");
 			return;
 		}
 
 		if (Voters.ContainsKey(user) && Voters[user] == vote)
 		{
-			IRCConnection.SendMessage($"{user} - すでに{(vote ? "賛成" : "反対")}に投票しています。");
+			IRCConnection.SendMessage($"{user}, you've already voted {(vote ? "yes" : "no")}.");
 			return;
 		}
 
 		Voters[user] = vote;
-		IRCConnection.SendMessage($"{user}は{(vote ? "賛成" : "反対")}しました。");
+		IRCConnection.SendMessage($"{user} voted {(vote ? "yes" : "no")}.");
 	}
 
 	public static void RemoveVote(string user)
 	{
 		if (!Active)
 		{
-			IRCConnection.SendMessage($"{user} - 現在投票は行われていません。");
+			IRCConnection.SendMessage($"{user}, there is no vote currently in progress.");
 			return;
 		}
 
 		if (!Voters.ContainsKey(user))
 		{
-			IRCConnection.SendMessage($"{user} - あなたはまだ投票していません。");
+			IRCConnection.SendMessage($"{user}, you haven't voted.");
 			return;
 		}
 
 		Voters.Remove(user);
-		IRCConnection.SendMessage($"{user} - 投票を削除しました。");
+		IRCConnection.SendMessage($"{user} has removed their vote.");
 	}
 	#endregion
 
@@ -241,13 +251,13 @@ public static class Votes
 	{
 		if (!TwitchPlaySettings.data.EnableVoting)
 		{
-			IRCConnection.SendMessage($"@{user} - 投票は無効化されています。");
+			IRCConnection.SendMessage($"Sorry, {user}, voting is disabled.");
 			return;
 		}
 
 		if (Active)
 		{
-			IRCConnection.SendMessage($"@{user} -　現在投票は進行中です");
+			IRCConnection.SendMessage($"Sorry, {user}, there's already a vote in progress.");
 			return;
 		}
 
@@ -258,22 +268,25 @@ public static class Votes
 	{
 		if (!Active)
 		{
-			IRCConnection.SendMessage($"@{user} - 現在進行中の投票はありません。");
+			IRCConnection.SendMessage($"{user}, there is no vote currently in progress.");
 			return;
 		}
-		IRCConnection.SendMessage($"{PossibleVotes[CurrentVoteType].name}の投票は残り{TimeLeft}秒です。");
+		IRCConnection.SendMessage($"The current vote to \"{PossibleVotes[CurrentVoteType].Name}\" lasts for {TimeLeft} more seconds.");
 	}
 
 	public static void CancelVote(string user)
 	{
 		if (!Active)
 		{
-			IRCConnection.SendMessage($"@{user} - 現在進行中の投票はありません。");
+			IRCConnection.SendMessage($"{user}, there is no vote currently in progress.");
 			return;
 		}
-		IRCConnection.SendMessage("投票はキャンセルされました。");
+		IRCConnection.SendMessage("The vote has been cancelled.");
 		if (CurrentVoteType == VoteTypes.Solve)
+		{
 			voteModule.SetBannerColor(voteModule.unclaimedBackgroundColor);
+			voteModule.SetClaimedUserMultidecker(null);
+		}
 		DestroyVote();
 	}
 
@@ -281,12 +294,12 @@ public static class Votes
 	{
 		if (!Active)
 		{
-			IRCConnection.SendMessage($"@{user} - 現在進行中の投票はありません。");
+			IRCConnection.SendMessage($"{user}, there is no vote currently in progress.");
 			return;
 		}
-		IRCConnection.SendMessage("投票は時間を切り上げて終了しました。");
+		IRCConnection.SendMessage("The vote is being ended now.");
 		VoteTimeRemaining = 0f;
 	}
 
-	private static Tuple<Func<bool>, string> createCheck(Func<bool> func, string str) => new Tuple<Func<bool>, string>(func, str);
+	private static Tuple<Func<bool>, string> CreateCheck(Func<bool> func, string str) => new Tuple<Func<bool>, string>(func, str);
 }

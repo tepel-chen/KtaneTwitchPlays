@@ -1,8 +1,7 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using Assets.Scripts.Props;
 
 /// <summary>Commands that can be run during a game.</summary>
@@ -222,7 +221,7 @@ static class GameCommands
 			if (unclaimedModuleIndex >= unclaimedModules.Count)
 			{
 				// Add back any modules that may have been released.	
-				unclaimedModules = TwitchGame.Instance.Modules.Where(h => h.CanBeClaimed && !h.Claimed && !h.Solved && !h.Hidden)
+				unclaimedModules = TwitchGame.Instance.Modules.Where(h => h.CanBeClaimed && !h.Claimed && !h.Solved && !h.Hidden && Votes.voteModule != h && !h.Votesolving)
 					.Shuffle().ToList();
 				unclaimedModuleIndex = 0;
 			}
@@ -237,7 +236,7 @@ static class GameCommands
 		{
 			// See if there is a valid module at the current index and increment for the next go around.
 			TwitchModule handle = unclaimedModules[unclaimedModuleIndex];
-			if (!handle.CanBeClaimed || handle.Claimed || handle.Solved || handle.Hidden)
+			if (!handle.CanBeClaimed || handle.Claimed || handle.Solved || handle.Hidden || Votes.voteModule == handle || handle.Votesolving)
 			{
 				unclaimedModules.RemoveAt(unclaimedModuleIndex);
 				i--;
@@ -597,9 +596,7 @@ static class GameCommands
 	[Command(@"call( *now)?( +.+)?")]
 	public static void CallQueuedCommand(string user, [Group(1)] bool now, [Group(2)] string name)
 	{
-		name = name?.Trim();
-		if (name == null)
-			name = "";
+		name = (name?.Trim()) ?? "";
 		var response = TwitchGame.Instance.CheckIfCall(false, now, user, name, out bool callChanged);
 		if (response != TwitchGame.CallResponse.Success)
 		{

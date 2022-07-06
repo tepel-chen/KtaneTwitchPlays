@@ -382,8 +382,8 @@ public class TwitchPlaySettingsData
 	public string TrainingModeCommandDisabled = "@{0}, Only authorized users may enable/disable Training Mode";
 	public string RunCommandDisabled = "@{0}, Only authorized users may use the !run command.";
 	public string ProfileCommandDisabled = "@{0}, profile management is currently disabled.";
-	public string RetryInactive = "Retry is inactive. Returning to hallway instead.";
-	public string RetryModeOrProfileChange = "There has been a change to profiles and/or game modes since the last bomb. Returning to hallway instead.";
+	public string RetryInactive = "Retry is inactive. Returning to the office instead.";
+	public string RetryModeOrProfileChange = "There has been a change to profiles and/or game modes since the last bomb. Returning to the office instead.";
 
 	public string ProfileActionUseless = "That profile ({0}) is already {1}.";
 	public string ProfileNotWhitelisted = "That profile ({0}) cannot be enabled/disabled.";
@@ -417,6 +417,8 @@ public class TwitchPlaySettingsData
 	public string UnsubmittableAnswerPenalty = "{0}, the answer for module {1} ({2}) couldn't be submitted! You lose {3} point{4}, please only submit correct answers.";
 
 	public string UnsupportedNeedyWarning = "Found an unsupported Needy Component. Disabling it.";
+
+	public string TechSupportBlock = "@{1}, module {0} ({2}) has been interrupted by Tech Support and is completely inoperable.";
 
 	private static bool ValidateString(ref string input, string def, int parameters, bool forceUpdate = false)
 	{

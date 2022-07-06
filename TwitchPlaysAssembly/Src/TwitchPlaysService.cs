@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -125,6 +125,13 @@ public class TwitchPlaysService : MonoBehaviour
 		}
 
 		SetupChatSimulator();
+
+		// Delete the steam_appid.txt since it was created for a one-time steam boot.
+		// Steam will have initialized before this.
+		if (File.Exists("steam_appid.txt"))
+		{
+			File.Delete("steam_appid.txt");
+		}
 	}
 
 	public void OnDisable()
@@ -252,11 +259,15 @@ public class TwitchPlaysService : MonoBehaviour
 		OtherModes.RefreshModes(state);
 
 		// Automatically check for updates after a round is finished or when entering the setup state but never more than once per hour.
-		bool hourPassed = DateTime.Now.Subtract(Updater.LastCheck).TotalHours >= 1;
-		if ((state == KMGameInfo.State.PostGame || state == KMGameInfo.State.Setup) && hourPassed && !Updater.UpdateAvailable)
-		{
-			_coroutinesToStart.Enqueue(AutomaticUpdateCheck());
-		}
+		// bool hourPassed = DateTime.Now.Subtract(Updater.LastCheck).TotalHours >= 1;
+		// if ((state == KMGameInfo.State.PostGame || state == KMGameInfo.State.Setup) && hourPassed && !Updater.UpdateAvailable)
+		// {
+		// 	_coroutinesToStart.Enqueue(Updater.CheckForUpdates().Yield(() =>
+		// 	{
+		// 		if (Updater.UpdateAvailable)
+		// 			IRCConnection.SendMessage("There is a new update to Twitch Plays!");
+		// 	}));
+		// }
 
 		switch (state)
 		{
@@ -317,6 +328,12 @@ public class TwitchPlaysService : MonoBehaviour
 
 	public Dictionary<string, TwitchHoldable> Holdables = new Dictionary<string, TwitchHoldable>();
 
+	/// <summary>Adds a holdable, ensuring that the ID in <see cref="Holdables"/> is the same as the one in it's <see cref="TwitchHoldable"/>.</summary>
+	private void AddHoldable(string id, FloatingHoldable holdable, Type commandType = null, bool allowModded = false)
+	{
+		Holdables[id] = new TwitchHoldable(holdable, commandType, allowModded, id);
+	}
+
 	private IEnumerator FindHoldables()
 	{
 		Holdables.Clear();
@@ -327,21 +344,21 @@ public class TwitchPlaysService : MonoBehaviour
 			if (holdable.GetComponentInChildren<KMBomb>() != null)
 				continue;
 			else if (holdable.GetComponent<FreeplayDevice>() != null)
-				Holdables["freeplay"] = new TwitchHoldable(holdable, commandType: typeof(FreeplayCommands));
+				AddHoldable("freeplay", holdable, commandType: typeof(FreeplayCommands));
 			else if (holdable.GetComponent<BombBinder>() != null && CurrentState == KMGameInfo.State.Setup)
-				Holdables["binder"] = new TwitchHoldable(holdable, commandType: typeof(MissionBinderCommands));
+				AddHoldable("binder", holdable, commandType: typeof(MissionBinderCommands));
 			else if (holdable.GetComponent<AlarmClock>() != null)
-				Holdables["alarm"] = new TwitchHoldable(holdable, commandType: typeof(AlarmClockCommands));
+				AddHoldable("alarm", holdable, commandType: typeof(AlarmClockCommands));
 			else if (holdable.GetComponent<IRCConnectionManagerHoldable>() != null)
-				Holdables["ircmanager"] = new TwitchHoldable(holdable, commandType: typeof(IRCConnectionManagerCommands));
+				AddHoldable("ircmanager", holdable, commandType: typeof(IRCConnectionManagerCommands));
 			else if (holdable.GetComponent("ModSelectorTablet") != null)
-				Holdables["dmg"] = new TwitchHoldable(holdable, commandType: typeof(DMGCommands), id: "dmg");
+				AddHoldable("dmg", holdable, commandType: typeof(DMGCommands));
 			else
 			{
 				var id = holdable.name.ToLowerInvariant().Replace("(clone)", "");
 				// Make sure a modded holdable can’t override a built-in
 				if (!Holdables.ContainsKey(id))
-					Holdables[id] = new TwitchHoldable(holdable, allowModded: true);
+					AddHoldable(id, holdable, allowModded: true);
 			}
 		}
 	}
@@ -371,7 +388,7 @@ public class TwitchPlaysService : MonoBehaviour
 			// It's possible to be in the gameplay state but not have the bombs yet, we'll wait for them so that the user's command doesn't get dropped.
 			if (CurrentState == KMGameInfo.State.Gameplay && TwitchGame.Instance.Bombs.Count == 0)
 			{
-				StartCoroutine(WaitForBombs(() => OnMessageReceived(msg)));
+				StartCoroutine(new WaitUntil(() => TwitchGame.Instance.Bombs.Count != 0).Yield(() => OnMessageReceived(msg)));
 				return;
 			}
 
@@ -699,25 +716,6 @@ public class TwitchPlaysService : MonoBehaviour
 			while (drop != null && drop.MoveNext())
 				yield return drop.Current;
 		}
-	}
-
-	private static IEnumerator AutomaticUpdateCheck()
-	{
-		// 自動アップデート無効化
-		/* yield return Updater.CheckForUpdates();
-
-		if (Updater.UpdateAvailable)
-		{
-			IRCConnection.SendMessage("There is a new update to Twitch Plays!");
-		} */
-		yield return null;
-	}
-
-	private IEnumerator WaitForBombs(Action then)
-	{
-		yield return new WaitUntil(() => TwitchGame.Instance.Bombs.Count != 0);
-
-		then();
 	}
 
 	public void UpdateUiHue()

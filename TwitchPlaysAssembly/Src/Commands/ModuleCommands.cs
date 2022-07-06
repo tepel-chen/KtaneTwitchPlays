@@ -17,7 +17,7 @@ static class ModuleCommands
 	{
 		string manualType = pdf ? "pdf" : "html";
 
-		string manualText = string.IsNullOrEmpty(module.Solver.ManualCode) ? module.HeaderText : module.Solver.ManualCode;
+		string manualText = (Repository.GetManual(module.BombComponent.GetModuleID()) ?? module.BombComponent.GetModuleDisplayName()) + TranslatedModuleHelper.GetManualCodeAddOn(module.Solver.LanguageCode);
 		string helpText = string.IsNullOrEmpty(module.Solver.HelpMessage) ? string.Empty : string.Format(module.Solver.HelpMessage, module.Code, module.HeaderText);
 
 		IRCConnection.SendMessage(Regex.IsMatch(manualText, @"^https?://", RegexOptions.IgnoreCase)
@@ -420,10 +420,11 @@ static class ModuleCommands
 
 		yield return new WaitForSeconds(0.5f);
 	}
+
 	/// <name>Zoom, Superzoom, Show and Tilt</name>
 	/// <syntax>zoom (duration) (command)\nsuperzoom (factor) (x) (y) (duration) (command)\ntilt (direction) (command)\ntilt (angle) (command)\nshow</syntax>
 	/// <summary>Zooms into a module for (duration) seconds. (command) allows you to send a command to the module while it's zooming.
-	/// Superzoom allows you more control over the zoom. (factor) controls how much it's zoomed in with 2 being a 2x zoom. (x) and (y) controls where the camera points with (0, 0) and (1, 1) being top left and bottom right respectively.
+	/// Superzoom allows you more control over the zoom. (factor) controls how much it's zoomed in with 2 being a 2x zoom. (x) and (y) controls where the camera points with (0, 0) and (1, 1) being bottom left and top right respectively.
 	/// Tilt will tilt the camera around the module in a direction so you can get better angle to look at the module. (direction) can be up, right, down or left and combinations like upleft. (angle) can be any number where 0 is the top of the module and goes clockwise.
 	/// Show will select the module on the bomb.
 	/// Zoom and Tilt or Superzoom and Tilt or Zoom and Show or Superzoom and Show can be put back to back to do both at the same time.
@@ -431,7 +432,7 @@ static class ModuleCommands
 	[Command(null)]
 	public static IEnumerator DefaultCommand(TwitchModule module, string user, string cmd)
 	{
-		if (Votes.Active && Votes.CurrentVoteType == VoteTypes.Solve && Votes.voteModule == module)
+		if ((Votes.Active && Votes.CurrentVoteType == VoteTypes.Solve && Votes.voteModule == module) || module.Votesolving)
 		{
 			IRCConnection.SendMessage($"Sorry @{user}, the module you are trying to interact with is being votesolved.");
 			yield break;
@@ -511,6 +512,13 @@ static class ModuleCommands
 		if (module.Solved && !TwitchPlaySettings.data.AnarchyMode)
 		{
 			IRCConnection.SendMessageFormat(TwitchPlaySettings.data.AlreadySolved, module.Code, module.PlayerName, user, module.HeaderText);
+			yield break;
+		}
+
+		Transform tsLight = module.BombComponent.StatusLightParent?.transform.Find("statusLight(Clone)").Find("Component_LED_ERROR(Clone)");
+		if (tsLight != null && tsLight.gameObject.activeSelf)
+		{
+			IRCConnection.SendMessageFormat(TwitchPlaySettings.data.TechSupportBlock, module.Code, user, module.HeaderText);
 			yield break;
 		}
 

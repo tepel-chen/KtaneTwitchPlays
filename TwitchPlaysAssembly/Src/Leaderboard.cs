@@ -208,6 +208,10 @@ public class Leaderboard
 		entry.AddScore(numScore);
 		entry.LastAction = DateTime.Now;
 		ResetSortFlag();
+
+		string name = userName.ToLowerInvariant();
+		if (!CurrentSolvers.ContainsKey(name))
+			CurrentSolvers[name] = 0;
 	}
 
 	public void MakeEvil(string userName) => MakeEvil(userName, SafeGetColor(userName));
@@ -496,6 +500,7 @@ public class Leaderboard
 		catch (FileNotFoundException)
 		{
 			DebugHelper.LogWarning($"File {path} was not found.");
+			_loaded = true;
 		}
 		catch (Exception ex)
 		{

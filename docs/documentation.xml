@@ -13,6 +13,11 @@
             <syntax>snooze</syntax>
             <summary>Hits the snooze button on the alarm clock.</summary>
         </member>
+        <member name="M:AlarmClockCommands.SnoozeMultiple(TwitchHoldable,System.String,System.Boolean,System.Int32)">
+            <name>Snooze Multiple</name>
+            <syntax>snooze [times]</syntax>
+            <summary>Hits the snooze button on the alarm clock. [times] is the number of times to press the snooze button (up to 50).</summary>
+        </member>
         <member name="T:BombCommands">
             <summary>Commands related to the bomb.</summary>
             <prefix>bomb </prefix>
@@ -874,6 +879,12 @@
             <summary>Reloads all the data that TP uses. Like settings, access levels, etc.</summary>
             <restriction>SuperUser</restriction>
         </member>
+        <member name="M:GlobalCommands.ReloadScoreInfo(System.String,System.Boolean)">
+            <name>Reload Score Info</name>
+            <syntax>reloadscoreinfo</syntax>
+            <summary>Reloads the scoring info of all modules.</summary>
+            <restriction>ScoringManager</restriction>
+        </member>
         <member name="M:GlobalCommands.SilenceMode">
             <name>Silence Mode</name>
             <syntax>silencemode</syntax>
@@ -899,7 +910,7 @@
         <member name="M:GlobalCommands.RestartGame">
             <name>Restart</name>
             <syntax>restart</syntax>
-            <summary>Restarts the game by closing and reopening it. May not work perfectly when running with Steam.</summary>
+            <summary>Restarts the game by closing and reopening it.</summary>
             <restriction>SuperUser</restriction>
         </member>
         <member name="M:GlobalCommands.QuitGame">
@@ -1129,7 +1140,7 @@
             <name>Zoom, Superzoom, Show and Tilt</name>
             <syntax>zoom (duration) (command)\nsuperzoom (factor) (x) (y) (duration) (command)\ntilt (direction) (command)\ntilt (angle) (command)\nshow</syntax>
             <summary>Zooms into a module for (duration) seconds. (command) allows you to send a command to the module while it's zooming.
-            Superzoom allows you more control over the zoom. (factor) controls how much it's zoomed in with 2 being a 2x zoom. (x) and (y) controls where the camera points with (0, 0) and (1, 1) being top left and bottom right respectively.
+            Superzoom allows you more control over the zoom. (factor) controls how much it's zoomed in with 2 being a 2x zoom. (x) and (y) controls where the camera points with (0, 0) and (1, 1) being bottom left and top right respectively.
             Tilt will tilt the camera around the module in a direction so you can get better angle to look at the module. (direction) can be up, right, down or left and combinations like upleft. (angle) can be any number where 0 is the top of the module and goes clockwise.
             Show will select the module on the bomb.
             Zoom and Tilt or Superzoom and Tilt or Zoom and Show or Superzoom and Show can be put back to back to do both at the same time.
@@ -1153,6 +1164,9 @@
         </member>
         <member name="M:ComponentSolverFactory.CreateDefaultModComponentSolver(TwitchModule,System.String,System.String,System.Boolean)">
             <summary>Returns a solver that relies on the module’s own implementation, bypassing built-in solvers and shims.</summary>
+        </member>
+        <member name="M:GeneralExtensions.Flatten(System.Collections.IEnumerator)">
+            <summary>Enumerates an IEnumerator while flattening any nested IEnumerators.</summary>
         </member>
         <member name="M:GeneralExtensions.AddSafe``2(System.Collections.Generic.IDictionary{``0,System.Collections.Generic.List{``1}},``0,``1)">
             <summary>
@@ -1210,7 +1224,7 @@
         <member name="T:IRCConnection.NetworkStreamLineReader">
             <summary>
             A <see cref="T:System.IO.TextReader"/> that reads lines from a <see cref="T:System.Net.Sockets.NetworkStream"/> and will check to see if any data is available to avoid blocking.
-            Allows you specify a seperate stream to read from if you have another stream (like a <see cref="T:System.Net.Security.SslStream"/>) wrapping your <see cref="T:System.Net.Sockets.NetworkStream"/>.
+            Allows you specify a separate stream to read from if you have another stream (like a <see cref="T:System.Net.Security.SslStream"/>) wrapping your <see cref="T:System.Net.Sockets.NetworkStream"/>.
             </summary>
         </member>
         <member name="M:IRCConnection.NetworkStreamLineReader.ReadLine">
@@ -1485,6 +1499,9 @@
         </member>
         <member name="T:TwitchGame">
             <summary>Encapsulates an ongoing game, with all its bombs, module cameras, HUDs etc.</summary>
+        </member>
+        <member name="M:TwitchPlaysService.AddHoldable(System.String,FloatingHoldable,System.Type,System.Boolean)">
+            <summary>Adds a holdable, ensuring that the ID in <see cref="F:TwitchPlaysService.Holdables"/> is the same as the one in it's <see cref="T:TwitchHoldable"/>.</summary>
         </member>
         <member name="M:TwitchPlaysService.AddStateCoroutine(System.Collections.IEnumerator)">
             <summary>Adds a coroutine that will run when the state changes.</summary>
