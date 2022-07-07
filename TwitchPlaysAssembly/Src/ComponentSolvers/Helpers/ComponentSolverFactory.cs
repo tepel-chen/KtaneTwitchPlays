@@ -816,12 +816,12 @@ public static class ComponentSolverFactory
 		return ModComponentSolverInformation[moduleType];
 	}
 
-	public static ModuleInformation GetModuleInfo(string moduleType, string helpText, string manualCode = null, bool statusLightLeft = false, bool statusLightBottom = false)
+	public static ModuleInformation GetModuleInfo(string moduleType, string helpText, string manualCode = null)
 	{
 		ModuleInformation info = GetModuleInfo(moduleType, false);
 		ModuleInformation defInfo = GetDefaultInformation(moduleType);
 
-		if (!info.helpTextOverride && !string.IsNullOrEmpty(helpText))
+		if (!info.helpTextOverride)
 		{
 			ModuleData.DataHasChanged |= !info.helpText.TryEquals(helpText);
 			info.helpText = helpText;
@@ -831,20 +831,7 @@ public static class ComponentSolverFactory
 			ModuleData.DataHasChanged |= !info.manualCode.TryEquals(manualCode);
 			info.manualCode = manualCode;
 		}
-		if (!info.statusLightOverride)
-		{
-			ModuleData.DataHasChanged |= info.statusLightLeft == statusLightLeft;
-			ModuleData.DataHasChanged |= info.statusLightDown == statusLightBottom;
-			info.statusLightLeft = statusLightLeft;
-			info.statusLightDown = statusLightBottom;
-		}
-
 		defInfo.helpText = helpText;
-		if(manualCode != null) {
-			defInfo.manualCode = manualCode;
-		}
-		defInfo.statusLightLeft = statusLightLeft;
-		defInfo.statusLightDown = statusLightBottom;
 
 		ModuleData.WriteDataToFile();
 
