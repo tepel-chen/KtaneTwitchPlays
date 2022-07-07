@@ -816,7 +816,7 @@ public static class ComponentSolverFactory
 		return ModComponentSolverInformation[moduleType];
 	}
 
-	public static ModuleInformation GetModuleInfo(string moduleType, string helpText)
+	public static ModuleInformation GetModuleInfo(string moduleType, string helpText, string manualCode = null, bool statusLightLeft = false, bool statusLightBottom = false)
 	{
 		ModuleInformation info = GetModuleInfo(moduleType, false);
 		ModuleInformation defInfo = GetDefaultInformation(moduleType);
@@ -831,8 +831,20 @@ public static class ComponentSolverFactory
 			ModuleData.DataHasChanged |= !info.manualCode.TryEquals(manualCode);
 			info.manualCode = manualCode;
 		}
+		if (!info.statusLightOverride)
+		{
+			ModuleData.DataHasChanged |= info.statusLightLeft == statusLightLeft;
+			ModuleData.DataHasChanged |= info.statusLightDown == statusLightBottom;
+			info.statusLightLeft = statusLightLeft;
+			info.statusLightDown = statusLightBottom;
+		}
 
 		defInfo.helpText = helpText;
+		if(manualCode != null) {
+			defInfo.manualCode = manualCode;
+		}
+		defInfo.statusLightLeft = statusLightLeft;
+		defInfo.statusLightDown = statusLightBottom;
 
 		ModuleData.WriteDataToFile();
 
